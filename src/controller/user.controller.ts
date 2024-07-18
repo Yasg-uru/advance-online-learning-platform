@@ -3,6 +3,7 @@ import catchAsync from "../middleware/catchasync.middleware";
 import usermodel, { User } from "../models/usermodel";
 import bcrypt from "bcrypt";
 import sendVerificationMail from "../util/sendmail.util";
+import UploadOnCloudinary from "../util/cloudinary.util";
 
 export const registerUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -15,13 +16,10 @@ export const registerUser = catchAsync(
       });
 
       if (ExistingUser) {
-        return Response.json(
-          {
-            success: false,
-            message: "user already exist",
-          },
-          { status: 400 }
-        );
+        return res.status(400).json({
+          success: false,
+          message: "user already exist",
+        });
       }
       const ExistingUserUnVerified = await usermodel.findOne({
         email,
@@ -39,17 +37,34 @@ export const registerUser = catchAsync(
       } else {
         const HashedPassword = await bcrypt.hash(password, 10);
         const verifyCodeExpiry = new Date(Date.now() + 3600000);
+        if (req.file && req.file.path) {
+          const cloudinaryUrl = await UploadOnCloudinary(req.file.path);
 
-        const newUser = new usermodel({
-          username,
-          password: HashedPassword,
-          email,
-          verifyCode: verifyCode,
-          verifyCodeExpiry: verifyCodeExpiry,
-          isVerified: false,
-        });
+          const profileUrl = cloudinaryUrl?.secure_url;
 
-        await newUser.save();
+          const newUser = new usermodel({
+            username,
+            password: HashedPassword,
+            email,
+            profileUrl: profileUrl || null,
+            verifyCode: verifyCode,
+            verifyCodeExpiry: verifyCodeExpiry,
+            isVerified: false,
+          });
+
+          await newUser.save();
+        } else {
+          const newUser = new usermodel({
+            username,
+            password: HashedPassword,
+            email,
+            verifyCode: verifyCode,
+            verifyCodeExpiry: verifyCodeExpiry,
+            isVerified: false,
+          });
+
+          await newUser.save();
+        }
         //email verification system
         const emailResponse = await sendVerificationMail(
           username,
@@ -57,33 +72,24 @@ export const registerUser = catchAsync(
           verifyCode
         );
         if (!emailResponse.success) {
-          return Response.json(
-            {
-              success: false,
-              message: emailResponse.message,
-            },
-            { status: 500 }
-          );
+          return res.status(200).json({
+            success: false,
+            message: emailResponse.message,
+          });
         }
       }
-      return Response.json(
-        {
-          success: true,
-          message:
-            "User registered successfully ,please verify your account first",
-        },
-        { status: 201 }
-      );
+      res.status(201).json({
+        success: true,
+        message:
+          "User registered successfully ,please verify your account first",
+      });
     } catch (error) {
-      console.log("Error registering user");
+      console.log("Error registering user", error);
 
-      return Response.json(
-        {
-          success: false,
-          message: "Error registering user",
-        },
-        { status: 500 }
-      );
+      return res.status(500).json({
+        success: false,
+        message: "Error registering user",
+      });
     }
   }
 );
@@ -93,7 +99,7 @@ export const verifyuser = catchAsync(
       const { email, code } = req.body;
       const user: User | null = await usermodel.findOne({ email });
       if (!user) {
-        return Response.json({
+        return res.status(404).json({
           success: false,
           message: "user not found with this email",
         });
@@ -104,41 +110,29 @@ export const verifyuser = catchAsync(
       if (isValidCode && isNotCodeExpired) {
         user.isVerified = true;
         await user.save();
-        return Response.json(
-          {
-            success: true,
-            message: "your account has been successfully verified",
-          },
-          { status: 200 }
-        );
+        res.status(200).json({
+          success: true,
+          message: "your account has been successfully verified",
+        });
       } else if (!isNotCodeExpired) {
-        return Response.json(
-          {
-            success: false,
-            message:
-              "Verification code has expired. Please sign up again to get a new code.",
-          },
-          { status: 400 }
-        );
+        return res.status(400).json({
+          success: false,
+          message:
+            "Verification code has expired. Please sign up again to get a new code.",
+        });
       } else {
-        return Response.json(
-          {
-            success: false,
-            message:
-              "Incorrect verification code . please signup again to get a new code",
-          },
-          { status: 400 }
-        );
+        return res.status(400).json({
+          success: false,
+          message:
+            "Incorrect verification code . please signup again to get a new code",
+        });
       }
     } catch (error) {
       console.log("Error verify code");
-      return Response.json(
-        {
-          success: false,
-          message: "Error verifying user",
-        },
-        { status: 500 }
-      );
+      res.status(500).json({
+        success: false,
+        message: "Error verifying user",
+      });
     }
   }
 );

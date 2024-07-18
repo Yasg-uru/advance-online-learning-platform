@@ -16,7 +16,7 @@ export interface User extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
-const userSchema: Schema = new Schema<User>(
+const userSchema: Schema<User> = new Schema<User>(
   {
     username: {
       type: String,
@@ -82,5 +82,5 @@ const userSchema: Schema = new Schema<User>(
     timestamps: true,
   }
 );
-const usermodel = mongoose.model("User", userSchema);
+const usermodel = mongoose.model("User", userSchema );
 export default usermodel;
