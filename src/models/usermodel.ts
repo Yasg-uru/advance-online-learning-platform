@@ -1,4 +1,10 @@
 import mongoose, { Schema, Document } from "mongoose";
+import bcrypt from "bcrypt";
+import { NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import JwtDecodedUser from "../types/jwtDecodedUser";
+import crypto from "crypto";
+
 export interface User extends Document {
   username: string;
   email: string;
@@ -16,7 +22,7 @@ export interface User extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
-const userSchema: Schema<User> = new Schema<User>(
+const userSchema = new Schema<User>(
   {
     username: {
       type: String,
@@ -82,5 +88,29 @@ const userSchema: Schema<User> = new Schema<User>(
     timestamps: true,
   }
 );
-const usermodel = mongoose.model("User", userSchema );
+userSchema.pre("save", async function (next): Promise<void> {
+  if (this.isModified("password")) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
+});
+userSchema.methods.generateToken = function (): string {
+  return jwt.sign(
+    { id: this._id, email: this.email, role: this.Role },
+    process.env.JWT_SECRET as string,
+    {
+      expiresIn: process.env.JWT_EXPIRE,
+    }
+  );
+};
+userSchema.methods.comparePassword = async function (
+  oldpassword: string
+): Promise<boolean> {
+  return await bcrypt.compare(oldpassword, this.password);
+};
+userSchema.methods.ResetToken = async function (): Promise<string> {
+  return await crypto.randomBytes(20).toString("hex");
+};
+
+const usermodel = mongoose.model("User", userSchema);
 export default usermodel;
