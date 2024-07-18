@@ -21,6 +21,9 @@ export interface User extends Document {
   }[];
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
+  generateToken(): string;
+  ResetToken(): string;
 }
 const userSchema = new Schema<User>(
   {
@@ -109,8 +112,8 @@ userSchema.methods.comparePassword = async function (
   return await bcrypt.compare(oldpassword, this.password);
 };
 userSchema.methods.ResetToken = async function (): Promise<string> {
-  return await crypto.randomBytes(20).toString("hex");
+  return crypto.randomBytes(20).toString("hex");
 };
 
-const usermodel = mongoose.model("User", userSchema);
+const usermodel = mongoose.model<User>("User", userSchema);
 export default usermodel;

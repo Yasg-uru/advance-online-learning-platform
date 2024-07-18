@@ -4,6 +4,8 @@ import usermodel, { User } from "../models/usermodel";
 import bcrypt from "bcrypt";
 import sendVerificationMail from "../util/sendmail.util";
 import UploadOnCloudinary from "../util/cloudinary.util";
+import Errorhandler from "../util/Errorhandler.util";
+import sendtoken from "../util/sendtoken";
 
 export const registerUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -16,10 +18,7 @@ export const registerUser = catchAsync(
       });
 
       if (ExistingUser) {
-        return res.status(400).json({
-          success: false,
-          message: "user already exist",
-        });
+        return next(new Errorhandler(400, "already user exist"));
       }
       const ExistingUserUnVerified = await usermodel.findOne({
         email,
@@ -34,8 +33,15 @@ export const registerUser = catchAsync(
           Date.now() + 3600000
         );
         await ExistingUserUnVerified.save();
+        const emailResponse = await sendVerificationMail(
+          username,
+          email,
+          verifyCode
+        );
+        if (!emailResponse.success) {
+          return next(new Errorhandler(400, emailResponse.message));
+        }
       } else {
-        const HashedPassword = await bcrypt.hash(password, 10);
         const verifyCodeExpiry = new Date(Date.now() + 3600000);
         if (req.file && req.file.path) {
           const cloudinaryUrl = await UploadOnCloudinary(req.file.path);
@@ -44,7 +50,7 @@ export const registerUser = catchAsync(
 
           const newUser = new usermodel({
             username,
-            password: HashedPassword,
+            password,
             email,
             profileUrl: profileUrl || null,
             verifyCode: verifyCode,
@@ -56,7 +62,7 @@ export const registerUser = catchAsync(
         } else {
           const newUser = new usermodel({
             username,
-            password: HashedPassword,
+            password,
             email,
             verifyCode: verifyCode,
             verifyCodeExpiry: verifyCodeExpiry,
@@ -65,17 +71,14 @@ export const registerUser = catchAsync(
 
           await newUser.save();
         }
-        //email verification system
+        
         const emailResponse = await sendVerificationMail(
           username,
           email,
           verifyCode
         );
         if (!emailResponse.success) {
-          return res.status(200).json({
-            success: false,
-            message: emailResponse.message,
-          });
+          return next(new Errorhandler(400, emailResponse.message));
         }
       }
       res.status(201).json({
@@ -134,5 +137,43 @@ export const verifyuser = catchAsync(
         message: "Error verifying user",
       });
     }
+  }
+);
+
+export const Login = catchAsync(async (req, res, next) => {
+  // try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return next(new Errorhandler(404, "Please Enter credentials"));
+    }
+    const user = await usermodel.findOne({ email });
+    if (!user) {
+      return next(new Errorhandler(404, "Invalid credentials"));
+    }
+    const isCorrectPassword = await user.comparePassword(password);
+    if (!isCorrectPassword) {
+      return next(new Errorhandler(404, "Invalid credentials"));
+    }
+    const token = user.generateToken();
+    sendtoken(res, token, 200, user);
+  // } catch (error) {
+  //   console.log("Error Login", error);
+  //   return next(new Errorhandler(500, "Error in Login"));
+  // }
+});
+export const Logout = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    res
+      .cookie("token", null, {
+        expires: new Date(Date.now()),
+        httpOnly: false,
+        sameSite: "none" as const,
+        secure: true,
+      })
+      .status(200)
+      .json({
+        success: true,
+        message: "Logged out successfully",
+      });
   }
 );

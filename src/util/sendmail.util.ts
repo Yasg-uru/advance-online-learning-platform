@@ -4,11 +4,11 @@ const Transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
 
-  service: process.env.SMTP_SERVICE,
+  service: "yashpawar12122004@gmail.com",
   auth: {
-    user: process.env.SMTP_USER,
+    user: "yashpawar12122004@gmail.com",
 
-    pass: process.env.SMTP_PASS,
+    pass: "nwxb yuwl uioz dzkc",
   },
 });
 const sendVerificationMail = async (
@@ -18,12 +18,13 @@ const sendVerificationMail = async (
 ): Promise<ApiResponse> => {
   try {
     const MailOptions = {
-      from: process.env.SMTP_USER,
+      from: "yashpawar12122004@gmail.com",
       to: email,
       subject: "Procoders verification code",
       text: `your verification code is ${verifyCode} for username :${username}`,
     };
-    await Transporter.sendMail(MailOptions);
+    const response=await Transporter.sendMail(MailOptions);
+    console.log("this is a mail response:",response)
     return {
       success: true,
       message: "Verification email sent successfully",
