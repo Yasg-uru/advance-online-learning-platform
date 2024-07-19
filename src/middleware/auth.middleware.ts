@@ -1,48 +1,37 @@
-import jwt, { decode } from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express-serve-static-core";
 import Errorhandler from "../util/Errorhandler.util";
-import JwtDecodedUser from "../types/jwtDecodedUser";
-
-export const isAuthenticated = async (
-  req: Request,
+import jwt from "jsonwebtoken";
+import { JwtDecodedUser } from "../types/jwtDecodedUser";
+import usermodel, { User } from "../models/usermodel";
+export interface reqwithuser extends Request {
+  user?: User;
+}
+const isAuthenticated = async (
+  req: reqwithuser,
   res: Response,
   next: NextFunction
 ) => {
-  console.log("this is a request yash:",req.yash)
-  
-  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+  const token = req.cookies?.token;
   if (!token) {
-    return next(new Errorhandler(400, "please Login to continue"));
+    return next(new Errorhandler(400, "please login to continue"));
   }
-  try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET as string
-    ) as JwtDecodedUser;
-    if (!decode) {
-      return next(new Errorhandler(400, "please login to continue"));
-    }
-    req.user = decoded;
-    next();
-  } catch (error: any) {
-    if (error.name === "JsonWebTokenError") {
-      // Handle specific JWT errors
-      return next(new Errorhandler(401, "Invalid or expired token"));
-    } else {
-      return next(new Errorhandler(500, "Error verifying token"));
-    }
+  const decodedUser = jwt.verify(
+    token,
+    process.env.JWT_SECRET as string
+  ) as JwtDecodedUser;
+  const user = await usermodel.findById(decodedUser.id);
+  if (!user) {
+    return next(new Errorhandler(404, "Usernot found"));
   }
+  req.user = user;
+  next();
 };
-export const authorization = (...roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!roles.includes(req.user.role)) {
-      return next(
-        new Errorhandler(
-          400,
-          `${req.user.role} is not allowed to access this resource`
-        )
-      );
+const authorization = (roles: string[]) => {
+  return (req: reqwithuser, res: Response, next: NextFunction) => {
+    if (!req.user || !roles.includes(req.user.Role)) {
+       return next(new Errorhandler(400, "access denied"));
     }
     next();
   };
 };
+export { isAuthenticated, authorization };

@@ -190,7 +190,7 @@ export const CourseSchema: Schema = new Schema<Course>(
     },
     thumbnailUrl: {
       type: String,
-      required: [true, "please enter the thumbnail url"],
+      // required: [true, "please enter the thumbnail url"],
     },
     category: {
       type: String,

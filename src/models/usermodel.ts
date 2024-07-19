@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcrypt";
 import { NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import JwtDecodedUser from "../types/jwtDecodedUser";
+import {JwtDecodedUser} from "../types/jwtDecodedUser";
 import crypto from "crypto";
 
 export interface User extends Document {

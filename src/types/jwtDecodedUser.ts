@@ -1,4 +1,4 @@
-export default interface JwtDecodedUser {
+export  interface JwtDecodedUser {
     id: string;
     email: string;
     role: string;
