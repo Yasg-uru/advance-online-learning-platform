@@ -65,7 +65,7 @@ export interface Course extends Document {
     comment: string;
     createdAt: Date;
   }[];
-  instructorId: Schema.Types.ObjectId;
+  instructorId: Schema.Types.ObjectId[];
   published: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -276,11 +276,12 @@ export const CourseSchema: Schema = new Schema<Course>(
         },
       },
     ],
-    instructorId: {
+    instructorId:[ {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: [true, "Instructor ID is required"],
-    },
+    }
+  ],
     published: {
       type: Boolean,
       default: false,
@@ -288,7 +289,5 @@ export const CourseSchema: Schema = new Schema<Course>(
   },
   { timestamps: true }
 );
-const courseModel =
-  (mongoose.models.Course as mongoose.Model<Course>) ||
-  mongoose.model("Course", CourseSchema);
+const courseModel = mongoose.model<Course>("Course", CourseSchema);
 export default courseModel;

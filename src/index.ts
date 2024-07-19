@@ -1,14 +1,16 @@
 import express from "express";
 import ConnectDatabase from "./lib/connectDb";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import userRouter from "./route/user.route";
-import cookieParser from "cookie-parser"
+import CourseRouter from "./route/course.route";
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
 
-
 app.use("/user", userRouter);
+app.use("/course", CourseRouter);
+
 dotenv.config();
 ConnectDatabase();
 const PORT = process.env.PORT || 4000;

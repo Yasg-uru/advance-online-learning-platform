@@ -1,15 +1,15 @@
-import { NextFunction } from "express";
-import catchAsync from "./catchasync.middleware";
 import jwt, { decode } from "jsonwebtoken";
-import { Requestwithuser } from "../types/ReqwithUser";
+import { Request, Response, NextFunction } from "express";
 import Errorhandler from "../util/Errorhandler.util";
 import JwtDecodedUser from "../types/jwtDecodedUser";
 
 export const isAuthenticated = async (
-  req: Requestwithuser,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  console.log("this is a request yash:",req.yash)
+  
   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
   if (!token) {
     return next(new Errorhandler(400, "please Login to continue"));
@@ -34,7 +34,7 @@ export const isAuthenticated = async (
   }
 };
 export const authorization = (...roles: string[]) => {
-  return (req: Requestwithuser, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!roles.includes(req.user.role)) {
       return next(
         new Errorhandler(

@@ -12,7 +12,7 @@ export const registerUser = catchAsync(
     try {
       const { username, email, password } = req.body;
 
-      const ExistingUser: User | null = await usermodel.findOne({
+      const ExistingUser = await usermodel.findOne({
         email,
         isVerified: true,
       });
@@ -47,12 +47,15 @@ export const registerUser = catchAsync(
           const cloudinaryUrl = await UploadOnCloudinary(req.file.path);
 
           const profileUrl = cloudinaryUrl?.secure_url;
-
+          console.log(
+            "this is a cloudinary and secure url",
+            profileUrl + "     " + cloudinaryUrl
+          );
           const newUser = new usermodel({
             username,
             password,
             email,
-            profileUrl: profileUrl || null,
+            profileUrl: profileUrl,
             verifyCode: verifyCode,
             verifyCodeExpiry: verifyCodeExpiry,
             isVerified: false,
@@ -71,7 +74,7 @@ export const registerUser = catchAsync(
 
           await newUser.save();
         }
-        
+
         const emailResponse = await sendVerificationMail(
           username,
           email,
@@ -141,7 +144,7 @@ export const verifyuser = catchAsync(
 );
 
 export const Login = catchAsync(async (req, res, next) => {
-  // try {
+  try {
     const { email, password } = req.body;
     if (!email || !password) {
       return next(new Errorhandler(404, "Please Enter credentials"));
@@ -156,10 +159,10 @@ export const Login = catchAsync(async (req, res, next) => {
     }
     const token = user.generateToken();
     sendtoken(res, token, 200, user);
-  // } catch (error) {
-  //   console.log("Error Login", error);
-  //   return next(new Errorhandler(500, "Error in Login"));
-  // }
+  } catch (error) {
+    console.log("Error Login", error);
+    return next(new Errorhandler(500, "Error in Login"));
+  }
 });
 export const Logout = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
