@@ -252,7 +252,29 @@ export const courseByCategory = catchAsync(
         groupedCourses,
       });
     } catch (error) {
-      next(new Errorhandler(500,"Error in course by category"))
+      next(new Errorhandler(500, "Error in course by category"));
+    }
+  }
+);
+export const SearchCourses = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { searchQuery } = req.query;
+      if (!searchQuery) {
+        next(new Errorhandler(404, "please give query for searching "));
+      }
+      const courses = await courseModel.find({
+        title: { $regex: searchQuery, $options: "i" },
+      });
+      if (!courses) {
+        next(new Errorhandler(404, "courses not found"));
+      }
+      res.status(200).json({
+        success: true,
+        courses,
+      });
+    } catch (error) {
+      next(new Errorhandler(500, "Error in Searching"));
     }
   }
 );

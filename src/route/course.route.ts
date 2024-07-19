@@ -6,6 +6,7 @@ import {
   deletecourse,
   filterCourses,
   getCourseInfo,
+  SearchCourses,
   updatecourse,
 } from "../controller/course.controller";
 const CourseRouter = Router();
@@ -31,6 +32,7 @@ CourseRouter.put(
 CourseRouter.get("/detail/:courseId",isAuthenticated,getCourseInfo);
 
 CourseRouter.get("/category",courseByCategory);
+CourseRouter.get("/",SearchCourses);
 
 CourseRouter.get("/filter", filterCourses);
 
