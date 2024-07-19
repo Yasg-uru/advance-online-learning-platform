@@ -145,6 +145,7 @@ export const verifyuser = catchAsync(
 
 export const Login = catchAsync(async (req, res, next) => {
   try {
+    
     const { email, password } = req.body;
     if (!email || !password) {
       return next(new Errorhandler(404, "Please Enter credentials"));
@@ -152,6 +153,10 @@ export const Login = catchAsync(async (req, res, next) => {
     const user = await usermodel.findOne({ email });
     if (!user) {
       return next(new Errorhandler(404, "Invalid credentials"));
+    }
+    if(!user.isVerified){
+      return next(new Errorhandler(400,"Access denied, Please verify your account first "));
+      
     }
     const isCorrectPassword = await user.comparePassword(password);
     if (!isCorrectPassword) {

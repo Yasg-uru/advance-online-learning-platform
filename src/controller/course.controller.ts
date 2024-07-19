@@ -1,10 +1,11 @@
-import courseModel from "../models/coursemodel";
+import courseModel, { Course } from "../models/coursemodel";
 import catchAsync from "../middleware/catchasync.middleware";
 import Errorhandler from "../util/Errorhandler.util";
 import UploadOnCloudinary from "../util/cloudinary.util";
 
 import { Response, NextFunction, Request } from "express";
 import { reqwithuser } from "../middleware/auth.middleware";
+import { sortAndDeduplicateDiagnostics } from "typescript";
 
 export const createCourse = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
@@ -135,6 +136,123 @@ export const filterCourses = catchAsync(
       });
     } catch (error) {
       return next(new Errorhandler(500, "Error in course filteration "));
+    }
+  }
+);
+
+export const updatecourse = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { courseId } = req.params;
+
+      const {
+        title,
+        description,
+        category,
+        level,
+        language,
+        prerequisites,
+        targetAudience,
+        learningOutComes,
+        syllabus,
+        tags,
+        price,
+        discount,
+        duration,
+        instructorId,
+        published,
+      } = req.body;
+      if (!courseId) {
+        return next(new Errorhandler(400, "Course ID is required"));
+      }
+      const updates: any = {
+        title,
+        description,
+        category,
+        level,
+        language,
+        prerequisites,
+        targetAudience,
+        learningOutComes,
+        syllabus,
+        tags,
+        price,
+        discount,
+        duration,
+        instructorId,
+        published,
+      };
+      if (req.file) {
+        const cloudinary = await UploadOnCloudinary(req.file.path);
+        updates.thumbnailUrl = cloudinary?.secure_url;
+      }
+      Object.keys(updates).forEach(
+        (key) => updates[key] === undefined && delete updates[key]
+      );
+      const updatedCourse = await courseModel.findByIdAndUpdate(
+        courseId,
+        updates,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+      if (!updatedCourse) {
+        return next(new Errorhandler(404, "course not found"));
+      }
+      res.status(200).json({
+        success: true,
+        message: "course updated successfully",
+        course: updatecourse,
+      });
+    } catch (error) {
+      next(new Errorhandler(500, "Error in Update Course"));
+    }
+  }
+);
+export const getCourseInfo = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { courseId } = req.params;
+      if (!courseId) {
+        return next(new Errorhandler(404, "course ID not found"));
+      }
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return next(new Errorhandler(404, "course not found "));
+      }
+      res.status(200).json({
+        success: true,
+        message: "course details successfully fetched",
+        course,
+      });
+    } catch (error) {
+      next(new Errorhandler(500, "Error in fetching course details"));
+    }
+  }
+);
+export const courseByCategory = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const courses = await courseModel.find();
+      if (courses.length === 0) {
+        return next(new Errorhandler(404, "course not found"));
+      }
+      const groupedCourses = courses.reduce((acc: any, course: Course) => {
+        const { category } = course as Course;
+        if (!acc[category]) {
+          acc[category] = [];
+        }
+        acc[category].push(course);
+        return acc;
+      }, {});
+      res.status(200).json({
+        success: true,
+        message: "successfully fetched grouped by category courses",
+        groupedCourses,
+      });
+    } catch (error) {
+      next(new Errorhandler(500,"Error in course by category"))
     }
   }
 );

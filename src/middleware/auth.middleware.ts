@@ -6,6 +6,7 @@ import usermodel, { User } from "../models/usermodel";
 export interface reqwithuser extends Request {
   user?: User;
 }
+
 const isAuthenticated = async (
   req: reqwithuser,
   res: Response,
@@ -23,13 +24,23 @@ const isAuthenticated = async (
   if (!user) {
     return next(new Errorhandler(404, "Usernot found"));
   }
+
   req.user = user;
   next();
 };
+
+// export const isverified = () => {
+//   (req: reqwithuser, res: Response, next: NextFunction) => {
+//     if (req.user?.isVerified === false) {
+//       return next(new Errorhandler(400, "Please verify your account first"));
+//     }
+//     next();
+//   };
+// };
 const authorization = (roles: string[]) => {
   return (req: reqwithuser, res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.Role)) {
-       return next(new Errorhandler(400, "access denied"));
+      return next(new Errorhandler(400, "access denied"));
     }
     next();
   };
