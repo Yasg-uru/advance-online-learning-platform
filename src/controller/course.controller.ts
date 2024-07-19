@@ -2,10 +2,8 @@ import courseModel, { Course } from "../models/coursemodel";
 import catchAsync from "../middleware/catchasync.middleware";
 import Errorhandler from "../util/Errorhandler.util";
 import UploadOnCloudinary from "../util/cloudinary.util";
-
 import { Response, NextFunction, Request } from "express";
 import { reqwithuser } from "../middleware/auth.middleware";
-import { sortAndDeduplicateDiagnostics } from "typescript";
 
 export const createCourse = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
@@ -263,9 +261,11 @@ export const SearchCourses = catchAsync(
       if (!searchQuery) {
         next(new Errorhandler(404, "please give query for searching "));
       }
-      const courses = await courseModel.find({
-        title: { $regex: searchQuery, $options: "i" },
-      });
+      const courses = await courseModel
+        .find({
+          title: { $regex: searchQuery, $options: "i" },
+        })
+        .select("-modules -quizzes");
       if (!courses) {
         next(new Errorhandler(404, "courses not found"));
       }
@@ -275,6 +275,56 @@ export const SearchCourses = catchAsync(
       });
     } catch (error) {
       next(new Errorhandler(500, "Error in Searching"));
+    }
+  }
+);
+
+export const RateCourse = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { courseId } = req.params;
+      const { rating, comment } = req.body;
+      if (!courseId || !comment || !courseId) {
+        return next(
+          new Errorhandler(400, "Please provide course ID, rating, and comment")
+        );
+      }
+      if (rating < 0 && rating > 5) {
+        return next(new Errorhandler(400, "Rating must between 0 and 5"));
+      }
+      const userId = req.user?.id;
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return next(new Errorhandler(404, "Course not found "));
+      }
+      const ExistingReview = course.reviews.find(
+        (review) => review.userId.toString() === userId.toString()
+      );
+      if (ExistingReview) {
+        return next(
+          new Errorhandler(400, "You have already rated this course")
+        );
+      }
+
+      const newreview = {
+        userId,
+        rating,
+        comment,
+      };
+      course.reviews.push(newreview as any);
+      const TotalRatings = course.reviews.length;
+      const TotalScore = course.reviews.reduce(
+        (acc, review) => acc + review.rating,
+        0
+      );
+      course.rating = TotalScore / TotalRatings || 0;
+      await course.save();
+      res.status(200).json({
+        success: true,
+        message: "added your rating to the course",
+      });
+    } catch (error) {
+      return next(new Errorhandler(500, "Error in Ratecourse"));
     }
   }
 );

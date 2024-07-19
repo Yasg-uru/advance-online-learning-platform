@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, mongo } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 export interface Lesson extends Document {
   title: string;
   description: string;
@@ -106,24 +106,30 @@ export const lessonSchema: Schema = new Schema<Lesson>(
   { timestamps: true }
 );
 
-export const ModuleSchema: Schema = new Schema<Module>(
-  {
-    title: {
-      type: String,
-      required: [true, "Please Enter title"],
-    },
-    description: {
-      type: String,
-      required: [true, "Please enter description "],
-    },
-    lessons: [lessonSchema],
-    orderIndex: {
-      type: Number,
-      required: [true, "Please Enter order index"],
-    },
+export const ModuleSchema: Schema = new Schema<Module>({
+  title: {
+    type: String,
+    required: [true, "Please Enter title"],
   },
-  { timestamps: true }
-);
+  description: {
+    type: String,
+    required: [true, "Please enter description "],
+  },
+  lessons: [lessonSchema],
+  orderIndex: {
+    type: Number,
+    required: [true, "Please Enter order index"],
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now(),
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now(),
+  },
+});
 
 export const QuizQuestionsSchema: Schema = new Schema<QuizQuestions>(
   {
@@ -138,7 +144,7 @@ export const QuizQuestionsSchema: Schema = new Schema<QuizQuestions>(
     },
     difficulty: {
       type: String,
-      required: [true, "Pleas enter difficuly"],
+      required: [true, "Please enter difficuly"],
       enum: ["Easy", "Medium", "Hard"],
     },
 
@@ -276,12 +282,13 @@ export const CourseSchema: Schema = new Schema<Course>(
         },
       },
     ],
-    instructorId:[ {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: [true, "Instructor ID is required"],
-    }
-  ],
+    instructorId: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: [true, "Instructor ID is required"],
+      },
+    ],
     published: {
       type: Boolean,
       default: false,

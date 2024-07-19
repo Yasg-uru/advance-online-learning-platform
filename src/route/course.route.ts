@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { authorization, isAuthenticated } from "../middleware/auth.middleware";
 import {
-    courseByCategory,
+  courseByCategory,
   createCourse,
   deletecourse,
   filterCourses,
   getCourseInfo,
+  RateCourse,
   SearchCourses,
   updatecourse,
 } from "../controller/course.controller";
@@ -29,12 +30,12 @@ CourseRouter.put(
   authorization(["admin"]),
   updatecourse
 );
-CourseRouter.get("/detail/:courseId",isAuthenticated,getCourseInfo);
+CourseRouter.get("/detail/:courseId", getCourseInfo);
 
-CourseRouter.get("/category",courseByCategory);
-CourseRouter.get("/",SearchCourses);
+CourseRouter.get("/category", courseByCategory);
+CourseRouter.get("/", SearchCourses);
 
 CourseRouter.get("/filter", filterCourses);
-
+CourseRouter.post("/rate/:courseId", isAuthenticated, RateCourse);
 
 export default CourseRouter;
