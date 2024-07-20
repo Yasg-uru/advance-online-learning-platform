@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import userRouter from "./route/user.route";
 import CourseRouter from "./route/course.route";
 import ModuleRouter from "./route/module.route";
+import QuizRouter from "./route/quiz.route";
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
@@ -12,6 +13,7 @@ app.use(express.json());
 app.use("/user", userRouter);
 app.use("/course", CourseRouter);
 app.use("/course/module", ModuleRouter);
+app.use("/course/module/quiz",QuizRouter);
 
 dotenv.config();
 ConnectDatabase();

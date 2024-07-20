@@ -13,6 +13,7 @@ export interface Lesson extends Document {
   updatedAt: Date;
 }
 export interface Module extends Document {
+  module: { title: any; instructions: any; questions: any; };
   title: string;
   description: string;
   lessons: Lesson[];
