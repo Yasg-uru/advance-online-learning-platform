@@ -13,7 +13,7 @@ export interface Lesson extends Document {
   updatedAt: Date;
 }
 export interface Module extends Document {
-  module: { title: any; instructions: any; questions: any; };
+  module: { title: any; instructions: any; questions: any };
   title: string;
   description: string;
   lessons: Lesson[];
@@ -67,6 +67,12 @@ export interface Course extends Document {
     comment: string;
     createdAt: Date;
   }[];
+  enrolledUsers: {
+    userId: Schema.Types.ObjectId;
+    paymentStatus: "Paid" | "Pending" | "Failed";
+    enrolledAt: Date;
+  }[];
+
   instructorId: Schema.Types.ObjectId[];
   published: boolean;
   createdAt: Date;
@@ -298,6 +304,23 @@ export const CourseSchema: Schema = new Schema<Course>(
       type: Boolean,
       default: false,
     },
+    enrolledUsers: [
+      {
+        userId: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+        },
+        paymentStatus: {
+          type: String,
+          default: "Pending",
+          enum: ["Paid", "Pending", "Failed"],
+        },
+        enrolledAt: {
+          type: Date,
+          default: Date.now(),
+        },
+      },
+    ],
   },
   { timestamps: true }
 );
