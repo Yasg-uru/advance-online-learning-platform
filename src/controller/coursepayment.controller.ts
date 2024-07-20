@@ -5,16 +5,21 @@ import { reqwithuser } from "../middleware/auth.middleware";
 import { NextFunction, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import razorpay from "../config/razorpayConfig";
+import crypto from "crypto";
+import { Schema } from "mongoose";
+import usermodel from "../models/usermodel";
 
 export const createOrder = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
     try {
       const { amount, currency = "INR" } = req.body;
-      const receipt = Math.floor(Math.random()*(99999-10000+1))+10000;
+      const { courseId } = req.params;
+
+      const receipt = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
       const options = {
         amount: amount * 100,
         currency,
-        receipt:`order_${receipt}`,
+        receipt: courseId,
       };
       const order = await razorpay.orders.create(options);
       res.status(201).json({
@@ -24,6 +29,60 @@ export const createOrder = catchAsync(
       });
     } catch (error) {
       next(new Errorhandler(500, "Error in creating order"));
+    }
+  }
+);
+
+export const verifypaymentStatus = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+        req.body;
+      //   const { courseId } = req.params;
+      const rzpsecret = "d3q0tkLxfFVKoizPqeboYYsm";
+      const generated_signature = crypto
+        .createHmac("sha256", rzpsecret)
+        .update(`${razorpay_order_id} | ${razorpay_payment_id}`)
+        .digest("hex");
+      if (razorpay_signature !== generated_signature) {
+        return next(new Errorhandler(400, "Invalid payment signature"));
+      }
+      const courseId = razorpay_order_id;
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return next(new Errorhandler(404, "course not found"));
+      }
+      const userId = req.user?._id;
+      const user = await usermodel.findById(userId);
+      if (!user) {
+        return next(new Errorhandler(404, "User not found"));
+      }
+      user.EnrolledCourses.push({
+        courseId: courseId as Schema.Types.ObjectId,
+        Progress: 0,
+        CompletionStatus: false,
+      });
+      await user.save();
+      const userEnrollment: any = course.enrolledUsers.find(
+        (user) =>
+          userEnrollment?.userId.toString() === (userId as string).toString()
+      );
+      if (userEnrollment) {
+        userEnrollment.paymentStatus = userEnrollment.paymentStatus = "Paid";
+      } else {
+        course.enrolledUsers.push({
+          userId: userId as Schema.Types.ObjectId,
+          paymentStatus: "Paid",
+          enrolledAt: new Date(),
+        });
+      }
+      await course.save();
+      res.status(200).json({
+        success: true,
+        message: "Payment verified and enrollment updated successfully",
+      });
+    } catch (error) {
+      next(new Errorhandler(500, "Error verifying payment"));
     }
   }
 );

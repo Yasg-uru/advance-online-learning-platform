@@ -84,7 +84,24 @@ export const updateModule = catchAsync(
     }
   }
 );
-
+export const GetModulesAndQuizes = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { courseId } = req.params;
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return next(new Errorhandler(404, "course not found"));
+      }
+      res.status(200).json({
+        success: true,
+        message: "successfully fetched course",
+        course,
+      });
+    } catch (error) {
+      next(new Errorhandler(500, "Error in get course module"));
+    }
+  }
+);
 export const DeleteCourseModule = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
     try {

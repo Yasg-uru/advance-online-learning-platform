@@ -4,8 +4,10 @@ import {
   addLessonToModule,
   addModuleToCourse,
   DeleteCourseModule,
+  GetModulesAndQuizes,
   updateModule,
 } from "../controller/module.controller";
+import { checkpaymentstatus } from "../middleware/checkpaymentstatus.middleware";
 const ModuleRouter = Router();
 ModuleRouter.post(
   "/create/:courseId",
@@ -25,6 +27,7 @@ ModuleRouter.put(
   authorization(["admin"]),
   addLessonToModule
 );
+ModuleRouter.get("/:courseId",isAuthenticated,checkpaymentstatus,GetModulesAndQuizes)
 
 ModuleRouter.delete(
   "/:courseId/:moduleId",
