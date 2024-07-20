@@ -1,9 +1,13 @@
 import catchAsync from "../middleware/catchasync.middleware";
-import courseModel, { Module } from "../models/coursemodel";
+import courseModel, {
+  Lesson,
+  lessonSchema,
+  Module,
+} from "../models/coursemodel";
 import Errorhandler from "../util/Errorhandler.util";
 import { Response, NextFunction } from "express";
 import { reqwithuser } from "../middleware/auth.middleware";
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 export const addModuleToCourse = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
@@ -56,15 +60,13 @@ export const updateModule = catchAsync(
       Object.keys(updates).forEach(
         (key) => updates[key] === undefined && delete updates[key]
       );
-      const moduleObjectId = new mongoose.Types.ObjectId(moduleId);
 
       const module = course.modules.find((module) => {
         const moduleID = module._id as string;
-        console.log("this is moduleid", moduleID);
+
         return moduleID.toString() === moduleId;
       });
 
-      console.log("this is a module:", module);
       if (!module) {
         return next(new Errorhandler(404, "module not found"));
       }
@@ -108,4 +110,50 @@ export const DeleteCourseModule = catchAsync(
   }
 );
 
-// export const
+export const addLessonToModule = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { moduleId, courseId } = req.params;
+      const {
+        title,
+        description,
+        contentUrl,
+        contentType,
+        duration,
+        resources,
+      } = req.body;
+      if (!courseId || !moduleId) {
+        return next(
+          new Errorhandler(404, "course Id or module id is required")
+        );
+      }
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return next(new Errorhandler(404, "course not found"));
+      }
+      const module = course.modules.find((module) => {
+        const moduleID = module._id as string;
+        return moduleID.toString() === moduleId;
+      });
+      if (!module) {
+        return next(new Errorhandler(404, "module not found"));
+      }
+      const newLesson = {
+        title,
+        description,
+        contentUrl,
+        contentType,
+        duration,
+        resources,
+      };
+      module.lessons.push(newLesson as Lesson);
+      await course.save();
+      res.status(200).json({
+        success: true,
+        message: "Successfully added lesson to the module",
+      });
+    } catch (error) {
+      next(new Errorhandler(500, "Error in addLessonToModule"));
+    }
+  }
+);

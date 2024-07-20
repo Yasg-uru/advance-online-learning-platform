@@ -17,6 +17,7 @@ export interface Module extends Document {
   description: string;
   lessons: Lesson[];
   orderIndex: number;
+  quiz: Quiz;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -106,31 +107,6 @@ export const lessonSchema: Schema = new Schema<Lesson>(
   { timestamps: true }
 );
 
-export const ModuleSchema: Schema = new Schema<Module>({
-  title: {
-    type: String,
-    required: [true, "Please Enter title"],
-  },
-  description: {
-    type: String,
-    required: [true, "Please enter description "],
-  },
-  lessons: [lessonSchema],
-  orderIndex: {
-    type: Number,
-    required: [true, "Please Enter order index"],
-  },
-
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now(),
-  },
-});
-
 export const QuizQuestionsSchema: Schema = new Schema<QuizQuestions>(
   {
     questionText: {
@@ -184,6 +160,34 @@ export const QuizSchema: Schema = new Schema<Quiz>(
   },
   { timestamps: true }
 );
+export const ModuleSchema: Schema = new Schema<Module>({
+  title: {
+    type: String,
+    required: [true, "Please Enter title"],
+  },
+  description: {
+    type: String,
+    required: [true, "Please enter description "],
+  },
+  lessons: [lessonSchema],
+  orderIndex: {
+    type: Number,
+    required: [true, "Please Enter order index"],
+  },
+  quiz: {
+    type: QuizSchema,
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now(),
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now(),
+  },
+});
+
 export const CourseSchema: Schema = new Schema<Course>(
   {
     title: {
