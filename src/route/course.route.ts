@@ -6,6 +6,7 @@ import {
   deletecourse,
   filterCourses,
   getCourseInfo,
+  getEnrolledCourses,
   RateCourse,
   SearchCourses,
   updatecourse,
@@ -37,5 +38,6 @@ CourseRouter.get("/", SearchCourses);
 
 CourseRouter.get("/filter", filterCourses);
 CourseRouter.post("/rate/:courseId", isAuthenticated, RateCourse);
+CourseRouter.get("/enrolled",isAuthenticated,getEnrolledCourses);
 
 export default CourseRouter;

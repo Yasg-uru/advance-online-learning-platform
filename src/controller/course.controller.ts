@@ -4,6 +4,7 @@ import Errorhandler from "../util/Errorhandler.util";
 import UploadOnCloudinary from "../util/cloudinary.util";
 import { Response, NextFunction, Request } from "express";
 import { reqwithuser } from "../middleware/auth.middleware";
+import usermodel from "../models/usermodel";
 
 export const createCourse = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
@@ -329,6 +330,26 @@ export const RateCourse = catchAsync(
       });
     } catch (error) {
       return next(new Errorhandler(500, "Error in Ratecourse"));
+    }
+  }
+);
+export const getEnrolledCourses = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?._id;
+      const enrolledCourses = await usermodel
+        .findById(userId)
+        .populate("EnrolledCourses.courseId");
+      if (!enrolledCourses) {
+        return next(new Errorhandler(404, "courses not found"));
+      }
+      res.status(200).json({
+        success: true,
+        message: "successfully fetched enrolled courses",
+        courses: enrolledCourses.EnrolledCourses,
+      });
+    } catch (error) {
+      return next(new Errorhandler(500, "Error in fetching enrolled courses"));
     }
   }
 );

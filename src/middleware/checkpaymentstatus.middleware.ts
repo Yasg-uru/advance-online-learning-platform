@@ -35,10 +35,10 @@ export const checkpaymentstatus = async (
         )
       );
     }
-const currentDate=new Date();
-const expirationDate=new Date(enrollement.enrolledAt);
-expirationDate.setFullYear(expirationDate.getFullYear()+2);
-    const isCourseExpired = expirationDate<currentDate;
+    const currentDate = new Date();
+    const expirationDate = new Date(enrollement.enrolledAt);
+    expirationDate.setFullYear(expirationDate.getFullYear() + 2);
+    const isCourseExpired = expirationDate < currentDate;
     if (isCourseExpired) {
       return next(new Errorhandler(403, "course is Expired"));
     }
