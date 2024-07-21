@@ -96,6 +96,7 @@ export const filterCourses = catchAsync(
         minRating,
         maxRating,
         instructorId,
+        isPaid,
       } = req.query;
       const filters: any = {};
       if (keyword) {
@@ -125,6 +126,12 @@ export const filterCourses = catchAsync(
 
       if (language) filters.language = language;
       if (instructorId) filters.instructorId = instructorId;
+      if (isPaid === "true") {
+        filters.isPaid = true;
+      }
+      if (isPaid === "false") {
+        filters.isPaid = false;
+      }
       if (minPrice) filters.price = { ...filters.price, $gte: minPrice };
       if (maxPrice) filters.price = { ...filters.price, $lte: maxPrice };
       if (minRating) filters.rating = { ...filters.rating, $gte: minRating };
