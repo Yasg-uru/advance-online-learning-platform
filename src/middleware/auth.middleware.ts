@@ -22,7 +22,7 @@ const isAuthenticated = async (
   ) as JwtDecodedUser;
   const user = await usermodel.findById(decodedUser.id);
   if (!user) {
-    return next(new Errorhandler(404, "Usernot found"));
+    return next(new Errorhandler(404, "User not found"));
   }
 
   req.user = user;

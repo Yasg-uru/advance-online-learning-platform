@@ -20,12 +20,13 @@ export const checkpaymentstatus = async (
     if (!course) {
       return next(new Errorhandler(404, "course not found"));
     }
-    const enrollement: any = course.enrolledUsers.find(
+    const enrollement = course.enrolledUsers.find(
       (enrollment) => enrollment?.userId.toString() === userId.toString()
     );
     if (!enrollement) {
       return next(new Errorhandler(403, "User is not enrolled in this course"));
     }
+
     if (enrollement.paymentStatus !== "Paid") {
       return next(
         new Errorhandler(
@@ -34,6 +35,14 @@ export const checkpaymentstatus = async (
         )
       );
     }
+const currentDate=new Date();
+const expirationDate=new Date(enrollement.enrolledAt);
+expirationDate.setFullYear(expirationDate.getFullYear()+2);
+    const isCourseExpired = expirationDate<currentDate;
+    if (isCourseExpired) {
+      return next(new Errorhandler(403, "course is Expired"));
+    }
+
     next();
   } catch (error) {
     return next(new Errorhandler(500, "Error checking payment status"));
