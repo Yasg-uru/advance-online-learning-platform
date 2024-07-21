@@ -14,8 +14,13 @@ export const createOrder = catchAsync(
     try {
       const { amount, currency = "INR" } = req.body;
       const { courseId } = req.params;
-
-      const receipt = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return next(new Errorhandler(404, "course not found"));
+      }
+      if (course.isPaid === false) {
+        return next(new Errorhandler(403, "This course is free "));
+      }
       const options = {
         amount: amount * 100,
         currency,
@@ -64,8 +69,7 @@ export const verifypaymentStatus = catchAsync(
       });
       await user.save();
       const userEnrollment: any = course.enrolledUsers.find(
-        (user) =>
-          userEnrollment?.userId.toString() === (userId as string).toString()
+        (user) => user.userId.toString() === (userId as string).toString()
       );
       if (userEnrollment) {
         userEnrollment.paymentStatus = userEnrollment.paymentStatus = "Paid";
@@ -83,6 +87,41 @@ export const verifypaymentStatus = catchAsync(
       });
     } catch (error) {
       next(new Errorhandler(500, "Error verifying payment"));
+    }
+  }
+);
+
+export const EnrolleFreeCourse = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?._id;
+      const { courseId } = req.params;
+      const course = await courseModel.findById(courseId);
+      const user = await usermodel.findById(userId);
+      if (!user) {
+        return next(new Errorhandler(404, "User not found "));
+      }
+      if (!course) {
+        return next(new Errorhandler(404, "course not found"));
+      }
+      user.EnrolledCourses.push({
+        courseId: course._id as Schema.Types.ObjectId,
+        CompletionStatus: false,
+        Progress: 0,
+      });
+      await user.save();
+      course.enrolledUsers.push({
+        userId: user._id as Schema.Types.ObjectId,
+        paymentStatus: "Paid",
+        enrolledAt: new Date(),
+      });
+      await course.save();
+      res.status(200).json({
+        success: true,
+        message: "successfully enrolled in course",
+      });
+    } catch (error) {
+      next(new Errorhandler(500, "Error Free Course Enrollement"));
     }
   }
 );

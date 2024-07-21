@@ -47,6 +47,7 @@ export interface Course extends Document {
   title: string;
   description: string;
   thumbnailUrl: string;
+  isPaid: boolean;
   category: string;
   level: "Beginner" | "Intermediate" | "Advance";
   language: string;
@@ -266,6 +267,10 @@ export const CourseSchema: Schema = new Schema<Course>(
     duration: {
       type: Number,
       required: [true, "Please Enter the duration of the course "],
+    },
+    isPaid: {
+      type: Boolean,
+      default: true,
     },
 
     rating: {

@@ -21,7 +21,7 @@ export const checkpaymentstatus = async (
       return next(new Errorhandler(404, "course not found"));
     }
     const enrollement: any = course.enrolledUsers.find(
-      (enrollment) => enrollement?.userId.toString() === userId.toString()
+      (enrollment) => enrollment?.userId.toString() === userId.toString()
     );
     if (!enrollement) {
       return next(new Errorhandler(403, "User is not enrolled in this course"));
