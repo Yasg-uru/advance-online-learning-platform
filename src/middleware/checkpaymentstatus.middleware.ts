@@ -28,7 +28,10 @@ export const checkpaymentstatus = async (
     }
     if (enrollement.paymentStatus !== "Paid") {
       return next(
-        new Errorhandler(403, "Payment is not completed for this course")
+        new Errorhandler(
+          403,
+          "Please Enroll in course to get Access of modules of this course"
+        )
       );
     }
     next();

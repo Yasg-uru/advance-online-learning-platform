@@ -26,6 +26,7 @@ export const createCourse = catchAsync(
         duration,
         instructorId,
         published,
+        isPaid,
       } = req.body;
 
       // if (!req.file) {
@@ -50,6 +51,7 @@ export const createCourse = catchAsync(
         duration,
         instructorId,
         published,
+        isPaid,
         // thumbnailUrl,
       });
       await newcourse.save();
@@ -159,6 +161,7 @@ export const updatecourse = catchAsync(
         duration,
         instructorId,
         published,
+        isPaid,
       } = req.body;
       if (!courseId) {
         return next(new Errorhandler(400, "Course ID is required"));
@@ -179,6 +182,7 @@ export const updatecourse = catchAsync(
         duration,
         instructorId,
         published,
+        isPaid,
       };
       if (req.file) {
         const cloudinary = await UploadOnCloudinary(req.file.path);
