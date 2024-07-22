@@ -12,27 +12,33 @@ const ModuleRouter = Router();
 ModuleRouter.post(
   "/create/:courseId",
   isAuthenticated,
-  authorization(["admin"]),
+  authorization(["admin", "instructor"]),
   addModuleToCourse
 );
 ModuleRouter.put(
   "/:courseId/:moduleId",
   isAuthenticated,
-  authorization(["admin"]),
+  authorization(["admin", "instructor"]),
   updateModule
 );
 ModuleRouter.put(
   "/lesson/:courseId/:moduleId",
   isAuthenticated,
-  authorization(["admin"]),
+  authorization(["admin", "instructor"]),
   addLessonToModule
 );
-ModuleRouter.get("/:courseId",isAuthenticated,checkpaymentstatus,GetModulesAndQuizes)
+ModuleRouter.get(
+  "/:courseId",
+  isAuthenticated,
+  checkpaymentstatus,
+
+  GetModulesAndQuizes
+);
 
 ModuleRouter.delete(
   "/:courseId/:moduleId",
   isAuthenticated,
-  authorization(["admin"]),
+  authorization(["admin","instructor"]),
   DeleteCourseModule
 );
 

@@ -16,19 +16,19 @@ const CourseRouter = Router();
 CourseRouter.post(
   "/create",
   isAuthenticated,
-  authorization(["admin"]),
+  authorization(["admin", "instructor"]),
   createCourse
 );
 CourseRouter.delete(
   "/:courseId",
   isAuthenticated,
-  authorization(["admin"]),
+  authorization(["admin", "instructor"]),
   deletecourse
 );
 CourseRouter.put(
   "/:courseId",
   isAuthenticated,
-  authorization(["admin"]),
+  authorization(["admin", "instructor"]),
   updatecourse
 );
 CourseRouter.get("/detail/:courseId", getCourseInfo);
@@ -38,6 +38,6 @@ CourseRouter.get("/", SearchCourses);
 
 CourseRouter.get("/filter", filterCourses);
 CourseRouter.post("/rate/:courseId", isAuthenticated, RateCourse);
-CourseRouter.get("/enrolled",isAuthenticated,getEnrolledCourses);
+CourseRouter.get("/enrolled", isAuthenticated, getEnrolledCourses);
 
 export default CourseRouter;
