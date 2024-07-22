@@ -2,10 +2,13 @@ import { NextFunction, Request, Response } from "express";
 import catchAsync from "../middleware/catchasync.middleware";
 import usermodel, { User } from "../models/usermodel";
 import bcrypt from "bcrypt";
-import sendVerificationMail from "../util/sendmail.util";
+import sendVerificationMail, {
+  sendResetPasswordMail,
+} from "../util/sendmail.util";
 import UploadOnCloudinary from "../util/cloudinary.util";
 import Errorhandler from "../util/Errorhandler.util";
 import sendtoken from "../util/sendtoken";
+import { reqwithuser } from "../middleware/auth.middleware";
 
 export const registerUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -145,7 +148,6 @@ export const verifyuser = catchAsync(
 
 export const Login = catchAsync(async (req, res, next) => {
   try {
-    
     const { email, password } = req.body;
     if (!email || !password) {
       return next(new Errorhandler(404, "Please Enter credentials"));
@@ -154,9 +156,13 @@ export const Login = catchAsync(async (req, res, next) => {
     if (!user) {
       return next(new Errorhandler(404, "Invalid credentials"));
     }
-    if(!user.isVerified){
-      return next(new Errorhandler(400,"Access denied, Please verify your account first "));
-      
+    if (!user.isVerified) {
+      return next(
+        new Errorhandler(
+          400,
+          "Access denied, Please verify your account first "
+        )
+      );
     }
     const isCorrectPassword = await user.comparePassword(password);
     if (!isCorrectPassword) {
@@ -183,5 +189,57 @@ export const Logout = catchAsync(
         success: true,
         message: "Logged out successfully",
       });
+  }
+);
+export const forgotPassword = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { email } = req.body;
+      const user = await usermodel.findOne({ email });
+      if (!user) {
+        return next(new Errorhandler(404, "User not found"));
+      }
+      user.ResetToken();
+      await user.save();
+      const resetUrl = `http://${req.headers.host}/reset-password/${user.ResetPasswordToken}`;
+      const mailresponse = await sendResetPasswordMail(resetUrl, email);
+      if (!mailresponse.success) {
+        return next(new Errorhandler(403, mailresponse.message));
+      }
+      res.status(200).json({
+        success: true,
+        message: "sent forgot password email successfully",
+      });
+    } catch (error) {
+      return next(new Errorhandler(500, "Error forgot password"));
+    }
+  }
+);
+export const Resetpassword = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { token } = req.params;
+      const { password } = req.body;
+      //finding the user by this resettoken
+      const user = await usermodel.findOne({
+        ResetPasswordToken: token,
+        ResetPasswordTokenExpire: { $gt: new Date() },
+      });
+      if (!user) {
+        return next(
+          new Errorhandler(404, "Resetpassword token has been expired")
+        );
+      }
+      user.password = password;
+      user.ResetPasswordToken = undefined;
+      user.ResetPasswordTokenExpire = undefined;
+      await user.save();
+      res.status(200).json({
+        success: true,
+        message: "your reset password successfully",
+      });
+    } catch (error) {
+      return next(new Errorhandler(500, "Error password Reset"));
+    }
   }
 );

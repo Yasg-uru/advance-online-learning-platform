@@ -19,11 +19,14 @@ export interface User extends Document {
     Progress: Number;
     CompletionStatus: boolean;
   }[];
+  ResetPasswordToken: string | undefined;
+  ResetPasswordTokenExpire: Date | undefined;
+
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
   generateToken(): string;
-  ResetToken(): string;
+  ResetToken(): void;
 }
 const userSchema = new Schema<User>(
   {
@@ -86,6 +89,12 @@ const userSchema = new Schema<User>(
         },
       },
     ],
+    ResetPasswordToken: {
+      type: String,
+    },
+    ResetPasswordTokenExpire: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -111,8 +120,9 @@ userSchema.methods.comparePassword = async function (
 ): Promise<boolean> {
   return await bcrypt.compare(oldpassword, this.password);
 };
-userSchema.methods.ResetToken = async function (): Promise<string> {
-  return crypto.randomBytes(20).toString("hex");
+userSchema.methods.ResetToken = function (): void {
+  this.ResetPasswordToken = crypto.randomBytes(20).toString("hex");
+  this.ResetPasswordTokenExpire = new Date(Date.now() + 3600000);
 };
 
 const usermodel = mongoose.model<User>("User", userSchema);

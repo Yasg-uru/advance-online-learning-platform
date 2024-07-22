@@ -23,8 +23,8 @@ const sendVerificationMail = async (
       subject: "Procoders verification code",
       text: `your verification code is ${verifyCode} for username :${username}`,
     };
-    const response=await Transporter.sendMail(MailOptions);
-    console.log("this is a mail response:",response)
+    const response = await Transporter.sendMail(MailOptions);
+    console.log("this is a mail response:", response);
     return {
       success: true,
       message: "Verification email sent successfully",
@@ -34,6 +34,29 @@ const sendVerificationMail = async (
     return {
       success: false,
       message: "Failed to send verification email",
+    };
+  }
+};
+export const sendResetPasswordMail = async function (
+  ResetLink: string,
+  email: string
+): Promise<ApiResponse> {
+  const MailOptions = {
+    from: "yashpawar12122004@gmail.com",
+    to: email,
+    subject: "Password Reset",
+    text: `Please click on the following link to reset password:\n\n ${ResetLink}`,
+  };
+  try {
+    const response = await Transporter.sendMail(MailOptions);
+    return {
+      success: true,
+      message: "Reset password mail sent sucessfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Error in sending forgot password mail",
     };
   }
 };
