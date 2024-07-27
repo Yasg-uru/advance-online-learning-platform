@@ -14,7 +14,7 @@ export const registerUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { username, email, password } = req.body;
-
+      console.log("this is a req.body", req.body);
       const ExistingUser = await usermodel.findOne({
         email,
         isVerified: true,
@@ -149,6 +149,7 @@ export const verifyuser = catchAsync(
 export const Login = catchAsync(async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    console.log("this is a req.body:", req.body);
     if (!email || !password) {
       return next(new Errorhandler(404, "Please Enter credentials"));
     }
@@ -201,7 +202,7 @@ export const forgotPassword = catchAsync(
       }
       user.ResetToken();
       await user.save();
-      const resetUrl = `http://${req.headers.host}/reset-password/${user.ResetPasswordToken}`;
+      const resetUrl = `http://localhost:5173/reset-password/${user.ResetPasswordToken}`;
       const mailresponse = await sendResetPasswordMail(resetUrl, email);
       if (!mailresponse.success) {
         return next(new Errorhandler(403, mailresponse.message));

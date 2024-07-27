@@ -84,7 +84,7 @@ export const updateModule = catchAsync(
     }
   }
 );
-export const GetModulesAndQuizes = catchAsync(
+export const GetModulesAndQuizesFullAccess = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
     try {
       const { courseId } = req.params;
@@ -96,6 +96,30 @@ export const GetModulesAndQuizes = catchAsync(
         success: true,
         message: "successfully fetched course",
         course,
+      });
+    } catch (error) {
+      next(new Errorhandler(500, "Error in get course module"));
+    }
+  }
+);
+export const GetModulesAndQuizes = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { courseId } = req.params;
+      const course = await courseModel.findById(courseId, {
+        "modules.title": 1,
+        "modules.description": 1,
+        "modules.lessons.title": 1,
+        "modules.lessons.description": 1,
+        "modules.orderIndex": 1,
+      });
+      if (!course) {
+        return next(new Errorhandler(404, "course not found"));
+      }
+      res.status(200).json({
+        success: true,
+        message: "successfully fetched course",
+        course: course.modules,
       });
     } catch (error) {
       next(new Errorhandler(500, "Error in get course module"));

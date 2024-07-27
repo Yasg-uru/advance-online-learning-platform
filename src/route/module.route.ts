@@ -5,6 +5,7 @@ import {
   addModuleToCourse,
   DeleteCourseModule,
   GetModulesAndQuizes,
+  GetModulesAndQuizesFullAccess,
   updateModule,
 } from "../controller/module.controller";
 import { checkpaymentstatus } from "../middleware/checkpaymentstatus.middleware";
@@ -28,17 +29,18 @@ ModuleRouter.put(
   addLessonToModule
 );
 ModuleRouter.get(
-  "/:courseId",
+  "/fullaccess/:courseId",
   isAuthenticated,
   checkpaymentstatus,
 
-  GetModulesAndQuizes
+  GetModulesAndQuizesFullAccess
 );
+ModuleRouter.get("/:courseId", isAuthenticated, GetModulesAndQuizes);
 
 ModuleRouter.delete(
   "/:courseId/:moduleId",
   isAuthenticated,
-  authorization(["admin","instructor"]),
+  authorization(["admin", "instructor"]),
   DeleteCourseModule
 );
 

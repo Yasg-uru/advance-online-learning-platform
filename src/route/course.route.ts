@@ -3,7 +3,9 @@ import { authorization, isAuthenticated } from "../middleware/auth.middleware";
 import {
   courseByCategory,
   createCourse,
+  createNote,
   deletecourse,
+  deletenote,
   filterCourses,
   getCourseInfo,
   getEnrolledCourses,
@@ -39,5 +41,7 @@ CourseRouter.get("/", SearchCourses);
 CourseRouter.get("/filter", filterCourses);
 CourseRouter.post("/rate/:courseId", isAuthenticated, RateCourse);
 CourseRouter.get("/enrolled", isAuthenticated, getEnrolledCourses);
+CourseRouter.delete("/note/:noteId/:courseId", isAuthenticated, deletenote);
+CourseRouter.post("/note/:courseId", isAuthenticated, createNote);
 
 export default CourseRouter;

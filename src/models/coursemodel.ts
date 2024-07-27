@@ -42,13 +42,17 @@ export interface Quiz extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
-
+export interface notes extends Document {
+  userId: Schema.Types.ObjectId;
+  note: string;
+  lessonName: string;
+}
 export interface Course extends Document {
   title: string;
   description: string;
   thumbnailUrl: string;
   isPaid: boolean;
-  category: string;
+  category: "Software Development" | "Data Science" | "Programming" | "DevOps";
   level: "Beginner" | "Intermediate" | "Advance";
   language: string;
   prerequisites: string[];
@@ -62,6 +66,7 @@ export interface Course extends Document {
   discount: number;
   duration: number;
   rating: number;
+  notes: notes[];
   reviews: {
     userId: Schema.Types.ObjectId;
     rating: number;
@@ -76,10 +81,24 @@ export interface Course extends Document {
 
   instructorId: Schema.Types.ObjectId[];
   published: boolean;
+  startingDate: Date;
   createdAt: Date;
   updatedAt: Date;
 }
-
+export const noteSchema = new Schema<notes>({
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+  },
+  lessonName: {
+    type: String,
+    required: [true, "Please enter lesson name "],
+  },
+  note: {
+    type: String,
+    required: [true, "please enter note "],
+  },
+});
 export const lessonSchema: Schema = new Schema<Lesson>(
   {
     title: {
@@ -93,6 +112,11 @@ export const lessonSchema: Schema = new Schema<Lesson>(
     contentUrl: {
       type: String,
       required: [true, "Please enter content url"],
+    },
+    contentType: {
+      type: String,
+      enum: ["Vedio", "Article", "Quiz", "Assignment"],
+      required: [true, "Content type is required"],
     },
     duration: {
       type: Number,
@@ -213,6 +237,7 @@ export const CourseSchema: Schema = new Schema<Course>(
     category: {
       type: String,
       required: [true, "please enter the category of the course "],
+      enum: ["Software Development", "Data Science", "Programming", "DevOps"],
     },
     level: {
       type: String,
@@ -309,6 +334,8 @@ export const CourseSchema: Schema = new Schema<Course>(
       type: Boolean,
       default: false,
     },
+    notes: [noteSchema],
+
     enrolledUsers: [
       {
         userId: {
@@ -326,6 +353,10 @@ export const CourseSchema: Schema = new Schema<Course>(
         },
       },
     ],
+    startingDate: {
+      type: Date,
+      required: [true, "Please enter course starting date"],
+    },
   },
   { timestamps: true }
 );

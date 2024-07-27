@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import ConnectDatabase from "./lib/connectDb";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
@@ -8,6 +9,12 @@ import ModuleRouter from "./route/module.route";
 import QuizRouter from "./route/quiz.route";
 import coursePaymentRouter from "./route/coursepayment.route";
 const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 app.use(express.json());
 

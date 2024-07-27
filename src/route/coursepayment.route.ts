@@ -17,7 +17,7 @@ coursePaymentRouter.post(
   createOrder
 );
 coursePaymentRouter.post(
-  "/verify-payment",
+  "/verify-payment/:courseId",
   isAuthenticated,
   checkIsPaid,
   verifypaymentStatus

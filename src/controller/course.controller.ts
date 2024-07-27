@@ -1,10 +1,11 @@
-import courseModel, { Course } from "../models/coursemodel";
+import courseModel, { Course, notes } from "../models/coursemodel";
 import catchAsync from "../middleware/catchasync.middleware";
 import Errorhandler from "../util/Errorhandler.util";
 import UploadOnCloudinary from "../util/cloudinary.util";
 import { Response, NextFunction, Request } from "express";
 import { reqwithuser } from "../middleware/auth.middleware";
-import usermodel from "../models/usermodel";
+import usermodel, { User } from "../models/usermodel";
+import { Schema } from "mongoose";
 
 export const createCourse = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
@@ -28,6 +29,7 @@ export const createCourse = catchAsync(
         instructorId,
         published,
         isPaid,
+        startingDate,
       } = req.body;
 
       // if (!req.file) {
@@ -53,6 +55,7 @@ export const createCourse = catchAsync(
         instructorId,
         published,
         isPaid,
+        startingDate,
         // thumbnailUrl,
       });
       await newcourse.save();
@@ -88,15 +91,16 @@ export const filterCourses = catchAsync(
     try {
       const {
         keyword,
+        tags,
         category,
         level,
-        language,
+        language, //
         minPrice,
         maxPrice,
         minRating,
         maxRating,
-        instructorId,
-        isPaid,
+        instructorId, //
+        isPaid, //
       } = req.query;
       const filters: any = {};
       if (keyword) {
@@ -121,11 +125,22 @@ export const filterCourses = catchAsync(
           },
         ];
       }
-      if (category) filters.category = category;
+      if (Array.isArray(tags)) {
+        filters.tags = { $in: tags };
+      }
+      if (category) {
+        filters.category = category;
+      }
       if (level) filters.level = level;
 
       if (language) filters.language = language;
-      if (instructorId) filters.instructorId = instructorId;
+      if (Array.isArray(language)) {
+        filters.language = { $in: language };
+      }
+      if (instructorId) {
+        filters.instructorId = { $in: `ObjectId${instructorId}` };
+      }
+
       if (isPaid === "true") {
         filters.isPaid = true;
       }
@@ -136,7 +151,14 @@ export const filterCourses = catchAsync(
       if (maxPrice) filters.price = { ...filters.price, $lte: maxPrice };
       if (minRating) filters.rating = { ...filters.rating, $gte: minRating };
       if (maxRating) filters.rating = { ...filters.rating, $lte: maxRating };
-      const ResultCourses = await courseModel.find(filters);
+      console.log(filters);
+      const ResultCourses = await courseModel
+        .find(filters)
+        .select("-modules -quizzes")
+        .populate("instructorId");
+      if (ResultCourses.length === 0) {
+        return next(new Errorhandler(404, "Sorry, No courses found"));
+      }
       res.status(200).json({
         success: true,
         message: "successfully filtered courses",
@@ -281,9 +303,20 @@ export const SearchCourses = catchAsync(
       if (!courses) {
         next(new Errorhandler(404, "courses not found"));
       }
+      const filteredInfo = courses.map((course) => {
+        return {
+          title: course.title,
+          category: course.category,
+          thumbnailUrl: course.thumbnailUrl,
+          _id: course._id,
+        };
+      });
+      if (filteredInfo.length === 0) {
+        return next(new Errorhandler(404, "Sorry, No Courses Found"));
+      }
       res.status(200).json({
         success: true,
-        courses,
+        filteredInfo,
       });
     } catch (error) {
       next(new Errorhandler(500, "Error in Searching"));
@@ -357,6 +390,53 @@ export const getEnrolledCourses = catchAsync(
       });
     } catch (error) {
       return next(new Errorhandler(500, "Error in fetching enrolled courses"));
+    }
+  }
+);
+export const createNote = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { note, lessonName } = req.body;
+      const { courseId } = req.params;
+
+      const userId = req.user?._id;
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return next(new Errorhandler(404, "Course not found"));
+      }
+      course.notes.push({
+        userId: userId as Schema.Types.ObjectId,
+        note,
+        lessonName,
+      } as notes);
+      await course.save();
+      res.status(201).json({
+        success: true,
+        message: "Successfully created your note",
+      });
+    } catch (error) {
+      next();
+    }
+  }
+);
+export const deletenote = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { noteId, courseId } = req.params;
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return next(new Errorhandler(404, "course not found"));
+      }
+      course.notes = course.notes.filter((note) => {
+        return (note._id as string ).toString() !== noteId.toString();
+      });
+      await course.save();
+      res.status(200).json({
+        success: true,
+        message: "successfully deleted not",
+      });
+    } catch (error) {
+      next();
     }
   }
 );
