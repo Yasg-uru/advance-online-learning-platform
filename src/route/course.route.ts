@@ -9,6 +9,7 @@ import {
   filterCourses,
   getCourseInfo,
   getEnrolledCourses,
+  getUserNotes,
   RateCourse,
   SearchCourses,
   updatecourse,
@@ -37,6 +38,7 @@ CourseRouter.get("/detail/:courseId", getCourseInfo);
 
 CourseRouter.get("/category", courseByCategory);
 CourseRouter.get("/", SearchCourses);
+CourseRouter.get("/usernote/:courseId",isAuthenticated,getUserNotes);
 
 CourseRouter.get("/filter", filterCourses);
 CourseRouter.post("/rate/:courseId", isAuthenticated, RateCourse);

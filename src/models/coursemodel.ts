@@ -46,6 +46,7 @@ export interface notes extends Document {
   userId: Schema.Types.ObjectId;
   note: string;
   lessonName: string;
+  NoteMakingTime: string;
 }
 export interface Course extends Document {
   title: string;
@@ -97,6 +98,10 @@ export const noteSchema = new Schema<notes>({
   note: {
     type: String,
     required: [true, "please enter note "],
+  },
+  NoteMakingTime: {
+    type: String,
+    required: [true, "please enter the note making time "],
   },
 });
 export const lessonSchema: Schema = new Schema<Lesson>(

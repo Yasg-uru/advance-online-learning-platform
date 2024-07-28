@@ -396,7 +396,8 @@ export const getEnrolledCourses = catchAsync(
 export const createNote = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
     try {
-      const { note, lessonName } = req.body;
+      const { note, lessonName, NoteMakingTime } = req.body;
+      console.log("this is a req.body:", req.body);
       const { courseId } = req.params;
 
       const userId = req.user?._id;
@@ -408,6 +409,7 @@ export const createNote = catchAsync(
         userId: userId as Schema.Types.ObjectId,
         note,
         lessonName,
+        NoteMakingTime,
       } as notes);
       await course.save();
       res.status(201).json({
@@ -415,7 +417,7 @@ export const createNote = catchAsync(
         message: "Successfully created your note",
       });
     } catch (error) {
-      next();
+      next(new Errorhandler(500, "Error in creating note"));
     }
   }
 );
@@ -428,12 +430,44 @@ export const deletenote = catchAsync(
         return next(new Errorhandler(404, "course not found"));
       }
       course.notes = course.notes.filter((note) => {
-        return (note._id as string ).toString() !== noteId.toString();
+        return (note._id as string).toString() !== noteId.toString();
       });
       await course.save();
       res.status(200).json({
         success: true,
         message: "successfully deleted not",
+      });
+    } catch (error) {
+      next();
+    }
+  }
+);
+export const getUserNotes = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { courseId } = req.params;
+      const { lessonName } = req.query;
+      if (!lessonName) {
+        return next(new Errorhandler(404, "lesson name is required"));
+      }
+      const userId = req.user?._id;
+
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return next(new Errorhandler(404, "course not found"));
+      }
+      const userNotes = course.notes.filter(
+        (note) => note.userId.toString() === (userId as string).toString()
+      );
+      console.log("this is a user notes", userNotes);
+      const lessonNotes = userNotes.filter(
+        (note) => note.lessonName.trim() === (lessonName as string).trim()
+      );
+      console.log("this is a lesson notes", lessonNotes);
+      res.status(200).json({
+        success: true,
+        message: "Fetched successfully your lesson notes",
+        lessonNotes,
       });
     } catch (error) {
       next();
