@@ -49,14 +49,14 @@ export const verifypaymentStatus = catchAsync(
       const rzpsecret = "d3q0tkLxfFVKoizPqeboYYsm";
       const generated_signature = crypto
         .createHmac("sha256", rzpsecret)
-        .update(`${razorpay_order_id} | ${razorpay_payment_id}`)
+        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
         .digest("hex");
 
       console.log("this is razorpay signature:", razorpay_signature);
       console.log("this is generated  signature:", generated_signature);
-      // if (razorpay_signature !== generated_signature) {
-      //   return next(new Errorhandler(400, "Invalid payment signature"));
-      // }
+      if (razorpay_signature !== generated_signature) {
+        return next(new Errorhandler(400, "Invalid payment signature"));
+      }
       const { courseId } = req.params;
       const course = await courseModel.findById(courseId);
       if (!course) {
