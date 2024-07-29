@@ -18,7 +18,7 @@ export interface User extends Document {
     courseId: Schema.Types.ObjectId;
     modulesProgress: {
       moduleId: Schema.Types.ObjectId;
-      completedLessons: Schema.Types.ObjectId;
+      completedLessons: Schema.Types.ObjectId[];
       progress: number;
       completionStatus: boolean;
     }[];

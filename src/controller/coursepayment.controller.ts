@@ -69,7 +69,15 @@ export const verifypaymentStatus = catchAsync(
       }
       user.EnrolledCourses.push({
         courseId: course._id as Schema.Types.ObjectId,
-        Progress: 0,
+        modulesProgress: course.modules.map((module) => {
+          return {
+            moduleId: module._id as Schema.Types.ObjectId,
+            completedLessons: [],
+            progress: 0,
+            completionStatus: false,
+          };
+        }),
+        overallProgress: 0,
         CompletionStatus: false,
       });
       await user.save();
@@ -111,8 +119,16 @@ export const EnrolleFreeCourse = catchAsync(
       }
       user.EnrolledCourses.push({
         courseId: course._id as Schema.Types.ObjectId,
+        modulesProgress: course.modules.map((module) => {
+          return {
+            moduleId: module._id as Schema.Types.ObjectId,
+            completedLessons: [],
+            progress: 0,
+            completionStatus: false,
+          };
+        }),
+        overallProgress: 0,
         CompletionStatus: false,
-        Progress: 0,
       });
       await user.save();
       course.enrolledUsers.push({
