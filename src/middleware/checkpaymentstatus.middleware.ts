@@ -48,3 +48,26 @@ export const checkpaymentstatus = async (
     return next(new Errorhandler(500, "Error checking payment status"));
   }
 };
+export const isAlreadyEnrolled = async (
+  req: reqwithuser,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { courseId } = req.params;
+    const course = await courseModel.findById(courseId);
+    if (!course) {
+      return next(new Errorhandler(404, "Course not found"));
+    }
+    const userId = req.user?._id;
+    const isEnrolled = course.enrolledUsers.findIndex((enrollment) => {
+      return enrollment.userId.toString() === (userId as string).toString();
+    });
+    if (isEnrolled !== -1) {
+      return next(new Errorhandler(403, "Already Enrolled to this course"));
+    }
+    next();
+  } catch (error) {
+    return next(new Errorhandler(500, "Error in checking user enrollment"));
+  }
+};

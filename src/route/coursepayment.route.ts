@@ -9,22 +9,26 @@ import {
   checkIsFree,
   checkIsPaid,
 } from "../middleware/isfreecourse.middleware";
+import { isAlreadyEnrolled } from "../middleware/checkpaymentstatus.middleware";
 const coursePaymentRouter = Router();
 coursePaymentRouter.post(
   "/intialize/:courseId",
   isAuthenticated,
+  isAlreadyEnrolled,
   checkIsPaid,
   createOrder
 ); //marked
 coursePaymentRouter.post(
   "/verify-payment/:courseId",
   isAuthenticated,
+  isAlreadyEnrolled,
   checkIsPaid,
   verifypaymentStatus
-); // change required
+); // marked
 coursePaymentRouter.post(
   "/enroll-free/:courseId",
   isAuthenticated,
+  isAlreadyEnrolled,
   checkIsFree,
   EnrolleFreeCourse
 ); //marked
