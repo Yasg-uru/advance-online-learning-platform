@@ -16,7 +16,13 @@ export interface User extends Document {
   Role: "student" | "admin" | "instructor";
   EnrolledCourses: {
     courseId: Schema.Types.ObjectId;
-    Progress: Number;
+    modulesProgress: {
+      moduleId: Schema.Types.ObjectId;
+      completedLessons: Schema.Types.ObjectId;
+      progress: number;
+      completionStatus: boolean;
+    }[];
+    overallProgress: Number;
     CompletionStatus: boolean;
   }[];
   ResetPasswordToken: string | undefined;
@@ -79,7 +85,29 @@ const userSchema = new Schema<User>(
           type: Schema.Types.ObjectId,
           ref: "Course",
         },
-        Progress: {
+        modulesProgress: [
+          {
+            moduleId: {
+              type: Schema.Types.ObjectId,
+              ref: "Module",
+            },
+            completedLessons: [
+              {
+                type: Schema.Types.ObjectId,
+                ref: "Lesson",
+              },
+            ],
+            progress: {
+              type: Number,
+              default: 0,
+            },
+
+            completionStatus: {
+              type: Boolean,
+            },
+          },
+        ],
+        overallProgress: {
           type: Number,
           default: 0,
         },
