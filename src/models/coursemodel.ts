@@ -3,7 +3,7 @@ export interface Lesson extends Document {
   title: string;
   description: string;
   contentUrl: string;
-  contentType: "Vedio" | "Article" | "Quiz" | "Assignment";
+  contentType: "Video" | "Article" | "Quiz" | "Assignment";
   duration: number;
   resources: {
     resourceType: "PDF" | "Link" | "Image";
@@ -120,7 +120,7 @@ export const lessonSchema: Schema = new Schema<Lesson>(
     },
     contentType: {
       type: String,
-      enum: ["Vedio", "Article", "Quiz", "Assignment"],
+      // enum: ["Video", "Article", "Quiz", "Assignment"],
       required: [true, "Content type is required"],
     },
     duration: {

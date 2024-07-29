@@ -25,6 +25,6 @@ QuizRouter.put(
   authorization(["admin", "instructor"]),
   updateQuiz
 );
-QuizRouter.get("/check/:courseId/:moduleId", isAuthenticated, checkAnswer);
+QuizRouter.post("/check/:courseId/:moduleId", isAuthenticated, checkAnswer);
 
 export default QuizRouter;

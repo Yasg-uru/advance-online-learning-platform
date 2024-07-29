@@ -11,7 +11,7 @@ export const createCourse = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
     // const userid=req.user.id;
 
-    try {
+    // try {
       const {
         title,
         description,
@@ -30,6 +30,7 @@ export const createCourse = catchAsync(
         published,
         isPaid,
         startingDate,
+        modules
       } = req.body;
 
       // if (!req.file) {
@@ -56,6 +57,7 @@ export const createCourse = catchAsync(
         published,
         isPaid,
         startingDate,
+       modules
         // thumbnailUrl,
       });
       await newcourse.save();
@@ -63,9 +65,9 @@ export const createCourse = catchAsync(
         success: true,
         message: "successfully created course",
       });
-    } catch (error) {
-      return next(new Errorhandler(500, "Error in creating course"));
-    }
+    // } catch (error) {
+    //   return next(new Errorhandler(500, "Error in creating course"));
+    // }
   }
 );
 

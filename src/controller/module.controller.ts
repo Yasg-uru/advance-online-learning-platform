@@ -11,7 +11,7 @@ import mongoose, { Document } from "mongoose";
 
 export const addModuleToCourse = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
-    try {
+    // try {
       const { courseId } = req.params;
       const { title, description, lessons, orderIndex } = req.body;
 
@@ -35,9 +35,9 @@ export const addModuleToCourse = catchAsync(
         success: true,
         message: "Module Created Successfully",
       });
-    } catch (error) {
-      next(new Errorhandler(500, "Error in course module creation "));
-    }
+    // } catch (error) {
+    //   next(new Errorhandler(500, "Error in course module creation "));
+    // }
   }
 );
 export const updateModule = catchAsync(

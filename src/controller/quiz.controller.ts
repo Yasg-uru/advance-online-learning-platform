@@ -78,7 +78,7 @@ export const deleteQuiz = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
     try {
       const { courseId, moduleId } = req.params;
-      
+
       if (!courseId || !moduleId) {
         return next(new Errorhandler(404, "courseID and moduleId is required"));
       }
@@ -109,7 +109,7 @@ export const checkAnswer = catchAsync(
     try {
       const { courseId, moduleId } = req.params;
       const userAnswers: UserAnswer[] = req.body.userAnswers;
-
+      console.log("this is a user answers :", userAnswers);
       if (!courseId || !moduleId) {
         return next(new Errorhandler(404, "courseId and moduleId is required"));
       }
@@ -153,7 +153,7 @@ export const checkAnswer = catchAsync(
       const scorePercentage = (ObtainedPoints / TotalPoints) * 100;
       res.status(200).json({
         success: true,
-        score: ObtainedPoints,
+         ObtainedPoints,
         TotalPoints,
         scorePercentage,
         Feedback,

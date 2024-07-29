@@ -13,8 +13,8 @@ const userRouter = Router();
 userRouter.post("/register", upload.single("profileUrl"), registerUser); //marked
 userRouter.post("/verify-code", verifyuser); //marked
 userRouter.post("/sign-in", Login); //marked
-userRouter.post("/logout", Logout);
-userRouter.post("/forgot-password", forgotPassword);
-userRouter.put("/reset-password/:token", Resetpassword);
+userRouter.post("/logout", Logout); //marked
+userRouter.post("/forgot-password", forgotPassword); //marked
+userRouter.put("/reset-password/:token", Resetpassword); //marked
 
 export default userRouter;
