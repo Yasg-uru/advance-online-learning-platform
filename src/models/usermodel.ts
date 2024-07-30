@@ -22,7 +22,7 @@ export interface User extends Document {
       progress: number;
       completionStatus: boolean;
     }[];
-    overallProgress: Number;
+    overallProgress: number;
     CompletionStatus: boolean;
   }[];
   ResetPasswordToken: string | undefined;

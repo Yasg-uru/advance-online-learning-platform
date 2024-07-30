@@ -270,6 +270,11 @@ export const completeLesson = catchAsync(
       if (!module) {
         return next(new Errorhandler(404, "Module not found "));
       }
+      if (module.progress === 100) {
+        return next(
+          new Errorhandler(403, "All lessons are completed to this module")
+        );
+      }
       const LessonId = lessonId as unknown as Schema.Types.ObjectId;
       const courseModules = await courseModel.findById(courseId);
       if (!courseModules) {
@@ -299,6 +304,52 @@ export const completeLesson = catchAsync(
         success: true,
         message: "Successfully tracked your progress",
         user,
+      });
+    } catch (error) {
+      next();
+    }
+  }
+);
+export const LoadProgress = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?._id;
+      const { courseId } = req.params;
+
+      const user = await usermodel.findById(userId);
+      if (!user) {
+        return next(new Errorhandler(404, "User not found"));
+      }
+      const EnrolledCourse = user.EnrolledCourses.find(
+        (course) => course.courseId.toString() === courseId.toString()
+      );
+      if (!EnrolledCourse) {
+        return next(new Errorhandler(404, "user not enrolled to this course "));
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "successfully fetched your progress to the particular course",
+        EnrolledCourse,
+      });
+    } catch (error) {
+      next();
+    }
+  }
+);
+export const getAllEnrolledCourseProgress = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user?._id;
+      const user = await usermodel.findById(userId);
+      if (!user) {
+        return next(new Errorhandler(404, "User not found "));
+      }
+      const EnrolledCourses = user.EnrolledCourses;
+      res.status(200).json({
+        success: true,
+        message: "Successfully fetched enrolled courses",
+        EnrolledCourses,
       });
     } catch (error) {
       next();

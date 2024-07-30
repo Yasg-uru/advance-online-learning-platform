@@ -7,39 +7,155 @@ import courseModel, {
 import Errorhandler from "../util/Errorhandler.util";
 import { Response, NextFunction } from "express";
 import { reqwithuser } from "../middleware/auth.middleware";
-import mongoose, { Document } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
+import usermodel from "../models/usermodel";
+
+// export const addModuleToCourse = catchAsync(
+//   async (req: reqwithuser, res: Response, next: NextFunction) => {
+//     // try {
+//       const { courseId } = req.params;
+//       const { title, description, lessons, orderIndex } = req.body;
+
+//       if (!courseId) {
+//         return next(new Errorhandler(404, "course ID not found"));
+//       }
+//       const course = await courseModel.findById(courseId);
+//       if (!course) {
+//         return next(new Errorhandler(404, "course not found"));
+//       }
+//       const newModule = {
+//         title,
+//         description,
+//         lessons,
+//         orderIndex,
+//       };
+//       course.modules.push(newModule as Module);
+//       await course.save();
+//       const addedModule = course.modules.find((module) => {
+//         return (
+//           module.title === title &&
+//           module.description === description &&
+//           module.orderIndex === orderIndex
+//         );
+//       });
+//       if (!addedModule) {
+//         return next(new Errorhandler(404, "module not found after insertion"));
+//       }
+//       //after that we need to update the user module progress array
+//       const EnrolledUsers = await usermodel.find({
+//         "EnrolledCourses.courseId": courseId,
+//       });
+//       for (const user of EnrolledUsers) {
+//         const enrolledCourse = user.EnrolledCourses.find(
+//           (course) => course.courseId.toString() === courseId.toString()
+//         );
+//         if (enrolledCourse) {
+//           const ExistingmoduleIds = enrolledCourse.modulesProgress.map(
+//             (module) => module.moduleId
+//           );
+//           if (
+//             ExistingmoduleIds.includes(addedModule._id as Schema.Types.ObjectId)
+//           ) {
+//             enrolledCourse.modulesProgress.push({
+//               moduleId: addedModule._id as Schema.Types.ObjectId,
+//               completedLessons: [],
+//               progress: 0,
+//               completionStatus: false,
+//             });
+//             await user.save();
+//           }
+//         }
+//       }
+//       res.status(200).json({
+//         success: true,
+//         message: "Module Created Successfully",
+//       });
+//     // } catch (error) {
+//     //   next(new Errorhandler(500, "Error in course module creation "));
+//     // }
+//   }
+// );
+
 
 export const addModuleToCourse = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
-    // try {
+    try {
       const { courseId } = req.params;
       const { title, description, lessons, orderIndex } = req.body;
 
       if (!courseId) {
         return next(new Errorhandler(404, "course ID not found"));
       }
+
       const course = await courseModel.findById(courseId);
       if (!course) {
         return next(new Errorhandler(404, "course not found"));
       }
+
       const newModule = {
         title,
         description,
         lessons,
         orderIndex,
       };
+
       course.modules.push(newModule as Module);
       await course.save();
+
+      const addedModule = course.modules.find((module) => {
+        return (
+          module.title === title &&
+          module.description === description &&
+          module.orderIndex === orderIndex
+        );
+      });
+
+      if (!addedModule) {
+        return next(new Errorhandler(404, "module not found after insertion"));
+      }
+
+      // Update the user module progress array
+      const enrolledUsers = await usermodel.find({
+        "EnrolledCourses.courseId": courseId,
+      });
+
+      for (const user of enrolledUsers) {
+        const enrolledCourse = user.EnrolledCourses.find(
+          (course) => course.courseId.toString() === courseId.toString()
+        );
+
+        if (enrolledCourse) {
+          const existingModuleIds = enrolledCourse.modulesProgress.map(
+            (module) => module.moduleId
+          );
+
+          if (
+            !existingModuleIds.includes(
+              addedModule._id as Schema.Types.ObjectId
+            )
+          ) {
+            enrolledCourse.modulesProgress.push({
+              moduleId: addedModule._id as Schema.Types.ObjectId,
+              completedLessons: [],
+              progress: 0,
+              completionStatus: false,
+            });
+
+            await user.save();
+          }
+        }
+      }
 
       res.status(200).json({
         success: true,
         message: "Module Created Successfully",
       });
-    // } catch (error) {
-    //   next(new Errorhandler(500, "Error in course module creation "));
-    // }
+    } catch (error) {
+      next(new Errorhandler(500, "Error in course module creation"));
+    }
   }
 );
+
 export const updateModule = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
     try {
