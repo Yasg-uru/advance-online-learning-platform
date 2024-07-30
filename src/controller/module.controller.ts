@@ -76,7 +76,6 @@ import usermodel from "../models/usermodel";
 //   }
 // );
 
-
 export const addModuleToCourse = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
     try {
