@@ -99,7 +99,7 @@ export const verifypaymentStatus = catchAsync(
         message: "Payment verified and enrollment updated successfully",
       });
     } catch (error) {
-      next();
+      return next(new Errorhandler(500,"internal server error"))
     }
   }
 );

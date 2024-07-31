@@ -66,7 +66,7 @@ export const createCourse = catchAsync(
       message: "successfully created course",
     });
     } catch (error:any) {
-      next();
+      return next(new Errorhandler(500,"internal server error"));
     }
   }
 );
@@ -440,7 +440,7 @@ export const deletenote = catchAsync(
         message: "successfully deleted not",
       });
     } catch (error: any) {
-      next();
+      return next(new Errorhandler(500,"internal server error"));
     }
   }
 );
@@ -472,7 +472,7 @@ export const getUserNotes = catchAsync(
         lessonNotes,
       });
     } catch (error: any) {
-      next();
+      return next(new Errorhandler(500,"internal server error"));
     }
   }
 );

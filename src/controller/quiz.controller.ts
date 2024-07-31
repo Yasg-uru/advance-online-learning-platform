@@ -199,7 +199,7 @@ export const createCourseQuiz = catchAsync(
         course,
       });
     } catch (error:any) {
-      next();
+      return next(new Errorhandler(500,"internal server error"))
     }
   }
 );
