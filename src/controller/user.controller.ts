@@ -94,13 +94,8 @@ export const registerUser = catchAsync(
         message:
           "User registered successfully ,please verify your account first",
       });
-    } catch (error) {
-      console.log("Error registering user", error);
-
-      return res.status(500).json({
-        success: false,
-        message: "Error registering user",
-      });
+    } catch (error:any) {
+      return next(new Errorhandler(500,error));
     }
   }
 );
@@ -110,10 +105,9 @@ export const verifyuser = catchAsync(
       const { email, code } = req.body;
       const user: User | null = await usermodel.findOne({ email });
       if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: "user not found with this email",
-        });
+      return next(new Errorhandler(404,"user not found with this email"))
+         
+        
       }
 
       const isValidCode = user.verifyCode === code;
@@ -125,25 +119,18 @@ export const verifyuser = catchAsync(
           success: true,
           message: "your account has been successfully verified",
         });
+        
       } else if (!isNotCodeExpired) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Verification code has expired. Please sign up again to get a new code.",
-        });
+       
+        return next(new Errorhandler(404, "Verification code has expired. Please sign up again to get a new code."))
+        
       } else {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Incorrect verification code . please signup again to get a new code",
-        });
+        
+        return next(new Errorhandler(404, "Incorrect verification code . please signup again to get a new code"))
       }
-    } catch (error) {
-      console.log("Error verify code");
-      res.status(500).json({
-        success: false,
-        message: "Error verifying user",
-      });
+    } catch (error:any) {
+     
+      return next(new Errorhandler(404, error))
     }
   }
 );
@@ -173,9 +160,9 @@ export const Login = catchAsync(async (req, res, next) => {
     }
     const token = user.generateToken();
     sendtoken(res, token, 200, user);
-  } catch (error) {
+  } catch (error:any) {
     console.log("Error Login", error);
-    return next(new Errorhandler(500, "Error in Login"));
+    return next(new Errorhandler(500, error));
   }
 });
 export const Logout = catchAsync(
