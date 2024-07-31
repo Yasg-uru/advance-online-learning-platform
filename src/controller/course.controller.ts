@@ -66,7 +66,7 @@ export const createCourse = catchAsync(
       message: "successfully created course",
     });
     } catch (error:any) {
-      return next(new Errorhandler(500, error));
+      next();
     }
   }
 );
@@ -440,7 +440,7 @@ export const deletenote = catchAsync(
         message: "successfully deleted not",
       });
     } catch (error: any) {
-      return next(new Errorhandler(500, error));
+      next();
     }
   }
 );
@@ -472,7 +472,7 @@ export const getUserNotes = catchAsync(
         lessonNotes,
       });
     } catch (error: any) {
-      return next(new Errorhandler(500, error));
+      next();
     }
   }
 );
