@@ -11,7 +11,7 @@ export const createCourse = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
     // const userid=req.user.id;
 
-    // try {
+    try {
     const {
       title,
       description,
@@ -65,9 +65,9 @@ export const createCourse = catchAsync(
       success: true,
       message: "successfully created course",
     });
-    // } catch (error) {
-    //   return next(new Errorhandler(500, "Error in creating course"));
-    // }
+    } catch (error:any) {
+      return next(new Errorhandler(500, error));
+    }
   }
 );
 
