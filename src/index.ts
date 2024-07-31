@@ -8,6 +8,7 @@ import CourseRouter from "./route/course.route";
 import ModuleRouter from "./route/module.route";
 import QuizRouter from "./route/quiz.route";
 import coursePaymentRouter from "./route/coursepayment.route";
+import { ErrorhandlerMiddleware } from "./util/Errorhandler.util";
 const app = express();
 app.use(
   cors({
@@ -23,6 +24,7 @@ app.use("/course", CourseRouter);
 app.use("/course/module", ModuleRouter);
 app.use("/course/module/quiz", QuizRouter);
 app.use("/payment", coursePaymentRouter);
+app.use(ErrorhandlerMiddleware);
 
 dotenv.config();
 ConnectDatabase();

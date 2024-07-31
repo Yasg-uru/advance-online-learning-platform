@@ -305,8 +305,8 @@ export const completeLesson = catchAsync(
         message: "Successfully tracked your progress",
         user,
       });
-    } catch (error) {
-      next();
+    } catch (error:any) {
+      return next(new Errorhandler(500,error));
     }
   }
 );
@@ -332,8 +332,8 @@ export const LoadProgress = catchAsync(
         message: "successfully fetched your progress to the particular course",
         EnrolledCourse,
       });
-    } catch (error) {
-      next();
+    } catch (error:any) {
+      return next(new Errorhandler(500,error));
     }
   }
 );
@@ -351,8 +351,8 @@ export const getAllEnrolledCourseProgress = catchAsync(
         message: "Successfully fetched enrolled courses",
         EnrolledCourses,
       });
-    } catch (error) {
-      next();
+    } catch (error:any) {
+      return next(new Errorhandler(500,error));
     }
   }
 );

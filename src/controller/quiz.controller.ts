@@ -153,13 +153,53 @@ export const checkAnswer = catchAsync(
       const scorePercentage = (ObtainedPoints / TotalPoints) * 100;
       res.status(200).json({
         success: true,
-         ObtainedPoints,
+        ObtainedPoints,
         TotalPoints,
         scorePercentage,
         Feedback,
       });
     } catch (error) {
       next(new Errorhandler(500, "Error in checking answer "));
+    }
+  }
+);
+export const getCourseQuiz = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { courseId } = req.params;
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return next(new Errorhandler(404, "course not found"));
+      }
+      res.status(200).json({
+        success: true,
+        message: "SUccessfully fetched course quizes",
+        Quizzes: course.quizzes,
+      });
+    } catch (error:any) {
+     return  next(new Errorhandler(500,error));
+    }
+  }
+);
+export const createCourseQuiz = catchAsync(
+  async (req: reqwithuser, res: Response, next: NextFunction) => {
+    try {
+      const { quizzes } = req.body;
+      const { courseId } = req.params;
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return next(new Errorhandler(404, "course not found "));
+      }
+      course.quizzes.push(quizzes);
+
+      await course.save();
+      res.status(201).json({
+        success: true,
+        message: "Successfully added quiz to the course ",
+        course,
+      });
+    } catch (error:any) {
+      return next(new Errorhandler(500,error));
     }
   }
 );
