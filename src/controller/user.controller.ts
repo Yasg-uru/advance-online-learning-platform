@@ -94,8 +94,8 @@ export const registerUser = catchAsync(
         message:
           "User registered successfully ,please verify your account first",
       });
-    } catch (error:any) {
-      return next(new Errorhandler(500,error));
+    } catch (error: any) {
+      return next(new Errorhandler(500, "Internal server Error "));
     }
   }
 );
@@ -105,9 +105,7 @@ export const verifyuser = catchAsync(
       const { email, code } = req.body;
       const user: User | null = await usermodel.findOne({ email });
       if (!user) {
-      return next(new Errorhandler(404,"user not found with this email"))
-         
-        
+        return next(new Errorhandler(404, "user not found with this email"));
       }
 
       const isValidCode = user.verifyCode === code;
@@ -119,18 +117,23 @@ export const verifyuser = catchAsync(
           success: true,
           message: "your account has been successfully verified",
         });
-        
       } else if (!isNotCodeExpired) {
-       
-        return next(new Errorhandler(404, "Verification code has expired. Please sign up again to get a new code."))
-        
+        return next(
+          new Errorhandler(
+            404,
+            "Verification code has expired. Please sign up again to get a new code."
+          )
+        );
       } else {
-        
-        return next(new Errorhandler(404, "Incorrect verification code . please signup again to get a new code"))
+        return next(
+          new Errorhandler(
+            404,
+            "Incorrect verification code . please signup again to get a new code"
+          )
+        );
       }
-    } catch (error:any) {
-     
-      return next(new Errorhandler(404, error))
+    } catch (error: any) {
+      return next(new Errorhandler(404, error));
     }
   }
 );
@@ -160,9 +163,9 @@ export const Login = catchAsync(async (req, res, next) => {
     }
     const token = user.generateToken();
     sendtoken(res, token, 200, user);
-  } catch (error:any) {
+  } catch (error: any) {
     console.log("Error Login", error);
-    return next(new Errorhandler(500, error));
+    return next(new Errorhandler(500, "Internal server Error "));
   }
 });
 export const Logout = catchAsync(
@@ -292,8 +295,8 @@ export const completeLesson = catchAsync(
         message: "Successfully tracked your progress",
         user,
       });
-    } catch (error:any) {
-      return next(new Errorhandler(500,error));
+    } catch (error: any) {
+      return next(new Errorhandler(500, "Internal server Error "));
     }
   }
 );
@@ -319,8 +322,8 @@ export const LoadProgress = catchAsync(
         message: "successfully fetched your progress to the particular course",
         EnrolledCourse,
       });
-    } catch (error:any) {
-      return next(new Errorhandler(500,error));
+    } catch (error: any) {
+      return next(new Errorhandler(500, "Internal server Error "));
     }
   }
 );
@@ -338,8 +341,8 @@ export const getAllEnrolledCourseProgress = catchAsync(
         message: "Successfully fetched enrolled courses",
         EnrolledCourses,
       });
-    } catch (error:any) {
-      return next(new Errorhandler(500,error));
+    } catch (error: any) {
+      return next(new Errorhandler(500, "Internal server Error "));
     }
   }
 );

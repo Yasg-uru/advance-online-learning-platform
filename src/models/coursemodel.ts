@@ -47,6 +47,8 @@ export interface notes extends Document {
   note: string;
   lessonName: string;
   NoteMakingTime: string;
+  createdAt:Date;
+  updatedAt:Date;
 }
 export interface Course extends Document {
   title: string;
@@ -103,6 +105,8 @@ export const noteSchema = new Schema<notes>({
     type: String,
     required: [true, "please enter the note making time "],
   },
+},{
+  timestamps:true
 });
 export const lessonSchema: Schema = new Schema<Lesson>(
   {
