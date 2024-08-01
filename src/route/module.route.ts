@@ -35,7 +35,7 @@ ModuleRouter.get(
 
   GetModulesAndQuizesFullAccess
 );
-ModuleRouter.get("/:courseId", isAuthenticated, GetModulesAndQuizes);
+ModuleRouter.get("/:courseId",  GetModulesAndQuizes);
 
 ModuleRouter.delete(
   "/:courseId/:moduleId",

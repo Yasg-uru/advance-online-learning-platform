@@ -55,7 +55,7 @@ export interface Course extends Document {
   description: string;
   thumbnailUrl: string;
   isPaid: boolean;
-  category: "Software Development" | "Data Science" | "Programming" | "DevOps";
+  category: "Software Development" | "Data Science" | "Programming" | "DevOps" | "Cybersecurity" | "Game Development";
   level: "Beginner" | "Intermediate" | "Advance";
   language: string;
   prerequisites: string[];
@@ -246,7 +246,7 @@ export const CourseSchema: Schema = new Schema<Course>(
     category: {
       type: String,
       required: [true, "please enter the category of the course "],
-      enum: ["Software Development", "Data Science", "Programming", "DevOps"],
+      enum: ["Software Development", "Data Science", "Programming", "DevOps", "Cybersecurity" , "Game Development"],
     },
     level: {
       type: String,
