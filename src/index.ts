@@ -10,13 +10,14 @@ import QuizRouter from "./route/quiz.route";
 import coursePaymentRouter from "./route/coursepayment.route";
 import { ErrorhandlerMiddleware } from "./util/Errorhandler.util";
 const app = express();
+
 app.use(
   cors({
-    origin: "https://procoders-frontend.vercel.app",
-    // origin: "http://localhost:5173",
+    origin:[ "http://192.168.137.13:8081","http://localhost:5173","https://procoders-frontend.vercel.app"], // The IP address where your Expo app is running
     credentials: true,
   })
 );
+
 app.use(cookieParser());
 app.use(express.json());
 

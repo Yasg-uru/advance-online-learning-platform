@@ -14,6 +14,7 @@ export const createOrder = catchAsync(
     try {
       const { amount, currency = "INR" } = req.body;
       const { courseId } = req.params;
+      console.log("this is a course id",courseId)
       const course = await courseModel.findById(courseId);
       if (!course) {
         return next(new Errorhandler(404, "course not found"));

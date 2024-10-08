@@ -12,61 +12,61 @@ export const createCourse = catchAsync(
     // const userid=req.user.id;
 
     try {
-    const {
-      title,
-      description,
-      category,
-      level,
-      language,
-      prerequisites,
-      targetAudience,
-      learningOutComes,
-      syllabus,
-      tags,
-      price,
-      discount,
-      duration,
-      instructorId,
-      published,
-      isPaid,
-      startingDate,
-      modules,
-    } = req.body;
+      const {
+        title,
+        description,
+        category,
+        level,
+        language,
+        prerequisites,
+        targetAudience,
+        learningOutComes,
+        syllabus,
+        tags,
+        price,
+        discount,
+        duration,
+        instructorId,
+        published,
+        isPaid,
+        startingDate,
+        modules,
+      } = req.body;
 
-    // if (!req.file) {
-    //   return next(new Errorhandler(400, "please select thumbnail first"));
-    // }
-    // const cloudinary = await UploadOnCloudinary(req.file.path);
-    // const thumbnailUrl = cloudinary?.secure_url;
+      // if (!req.file) {
+      //   return next(new Errorhandler(400, "please select thumbnail first"));
+      // }
+      // const cloudinary = await UploadOnCloudinary(req.file.path);
+      // const thumbnailUrl = cloudinary?.secure_url;
 
-    const newcourse = new courseModel({
-      title,
-      description,
-      category,
-      level,
-      language,
-      prerequisites,
-      targetAudience,
-      learningOutComes,
-      syllabus,
-      tags,
-      price,
-      discount,
-      duration,
-      instructorId,
-      published,
-      isPaid,
-      startingDate,
-      modules,
-      // thumbnailUrl,
-    });
-    await newcourse.save();
-    res.status(201).json({
-      success: true,
-      message: "successfully created course",
-    });
-    } catch (error:any) {
-      return next(new Errorhandler(500,"internal server error"));
+      const newcourse = new courseModel({
+        title,
+        description,
+        category,
+        level,
+        language,
+        prerequisites,
+        targetAudience,
+        learningOutComes,
+        syllabus,
+        tags,
+        price,
+        discount,
+        duration,
+        instructorId,
+        published,
+        isPaid,
+        startingDate,
+        modules,
+        // thumbnailUrl,
+      });
+      await newcourse.save();
+      res.status(201).json({
+        success: true,
+        message: "successfully created course",
+      });
+    } catch (error: any) {
+      return next(new Errorhandler(500, "internal server error"));
     }
   }
 );
@@ -440,7 +440,7 @@ export const deletenote = catchAsync(
         message: "successfully deleted not",
       });
     } catch (error: any) {
-      return next(new Errorhandler(500,"internal server error"));
+      return next(new Errorhandler(500, "internal server error"));
     }
   }
 );
@@ -472,7 +472,7 @@ export const getUserNotes = catchAsync(
         lessonNotes,
       });
     } catch (error: any) {
-      return next(new Errorhandler(500,"internal server error"));
+      return next(new Errorhandler(500, "internal server error"));
     }
   }
 );
