@@ -10,7 +10,7 @@ export const checkpaymentstatus = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.user?._id as Types.ObjectId;
+    const userId = req.user?._id;
     const { courseId } = req.params;
 
     if (!userId) {
