@@ -60,4 +60,43 @@ export const sendResetPasswordMail = async function (
     };
   }
 };
+export const sendContactFormMail = async (
+  name: string,
+  email: string,
+  subject: string,
+  message: string
+): Promise<ApiResponse> => {
+  try {
+    const MailOptions = {
+      from: "yashpawar12122004@gmail.com",
+      to: "yashpawar12122004@gmail.com", // Your email
+      subject: `📩 New Contact Form Submission: ${subject}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+          <div style="background-color: #4CAF50; padding: 15px; text-align: center; color: white;">
+            <h2 style="margin: 0;">New Contact Form Submission</h2>
+          </div>
+          <div style="padding: 20px;">
+            <p style="font-size: 16px; color: #333;"><strong>Name:</strong> ${name}</p>
+            <p style="font-size: 16px; color: #333;"><strong>Email:</strong> ${email}</p>
+            <p style="font-size: 16px; color: #333;"><strong>Subject:</strong> ${subject}</p>
+            <p style="font-size: 16px; color: #333;"><strong>Message:</strong></p>
+            <div style="background-color: #f9f9f9; padding: 15px; border-left: 5px solid #4CAF50; margin: 10px 0; font-style: italic; color: #555;">
+              ${message}
+            </div>
+            <p style="text-align: center; font-size: 14px; color: #777;">This email was automatically generated from your contact form.</p>
+          </div>
+        </div>
+      `,
+    };
+
+    const response = await Transporter.sendMail(MailOptions);
+    console.log("📧 Contact Form Email Sent:", response);
+    return { success: true, message: "Contact form email sent successfully" };
+  } catch (error) {
+    console.error("❌ Error sending contact form email:", error);
+    return { success: false, message: "Failed to send contact form email" };
+  }
+};
+
 export default sendVerificationMail;

@@ -6,6 +6,7 @@ import { Response, NextFunction, Request } from "express";
 import { reqwithuser } from "../middleware/auth.middleware";
 import usermodel, { User } from "../models/usermodel";
 import { Schema } from "mongoose";
+import { sendContactFormMail } from "../util/sendmail.util";
 
 export const createCourse = catchAsync(
   async (req: reqwithuser, res: Response, next: NextFunction) => {
@@ -476,3 +477,24 @@ export const getUserNotes = catchAsync(
     }
   }
 );
+export const sendContactInfo = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, name, subject, message } = req.body;
+    const mailReponse = await sendContactFormMail(
+      name,
+      email,
+      subject,
+      message
+    );
+    if (!mailReponse.success) {
+      return next(new Errorhandler(500, mailReponse.message));
+    }
+    res.status(200).json({
+      message: mailReponse.success,
+    });
+  } catch (error) {}
+};

@@ -12,6 +12,7 @@ import {
   getUserNotes,
   RateCourse,
   SearchCourses,
+  sendContactInfo,
   updatecourse,
 } from "../controller/course.controller";
 const CourseRouter = Router();
@@ -45,5 +46,5 @@ CourseRouter.post("/rate/:courseId", isAuthenticated, RateCourse);//
 CourseRouter.get("/enrolled", isAuthenticated, getEnrolledCourses); //
 CourseRouter.delete("/note/:noteId/:courseId", isAuthenticated, deletenote); //
 CourseRouter.post("/note/:courseId", isAuthenticated, createNote); //
-
+CourseRouter.post("/send-contact",sendContactInfo)
 export default CourseRouter;
